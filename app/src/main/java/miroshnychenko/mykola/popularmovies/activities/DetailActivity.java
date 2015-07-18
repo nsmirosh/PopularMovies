@@ -37,15 +37,26 @@ public class DetailActivity extends ActionBarActivity {
 
             Movie movie = getIntent().getParcelableExtra(EXTRA_MOVIE);
 
-            mTitleTV.setText(movie.getOriginalTitle());
+            if(movie.getOriginalTitle() != null) {
+                mTitleTV.setText(movie.getOriginalTitle());
+            }
 
-            Picasso.with(getApplicationContext())
-                    .load(movie.getMoviePosterPath())
-                    .into(mPosterIV);
+            if (movie.getMoviePosterPath() != null) {
+                Picasso.with(getApplicationContext())
+                        .load(movie.getMoviePosterPath())
+                        .into(mPosterIV);
+            }
 
-            mReleaseDateTV.setText(MovieDateHelper.parseReleaseDate(movie.getReleaseDate()));
-            mRatingTV.setText(String.valueOf(movie.getUserRating()) + "/10");
-            mOverviewTV.setText(movie.getOverview());
+            if (movie.getReleaseDate() != null) {
+                mReleaseDateTV.setText(movie.getReleaseDate());
+            }
+
+            if (movie.getUserRating() != 0) {
+                mRatingTV.setText(String.valueOf(movie.getUserRating()) + "/10");
+            }
+            if (movie.getOverview() != null) {
+                mOverviewTV.setText(movie.getOverview());
+            }
 
         }
     }
