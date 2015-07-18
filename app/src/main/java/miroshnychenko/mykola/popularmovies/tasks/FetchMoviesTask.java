@@ -33,7 +33,8 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
 
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
-    public static final String API_KEY = "";
+    public static final String API_KEY = "d5d716f0c3ba595706ba90ae3138a16a";
+    public static final String moviePosterBasePath = "http://image.tmdb.org/t/p/w500";
     @Override
     protected List<Movie> doInBackground(String... params) {
 
@@ -105,15 +106,15 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
     private List<Movie> getMoviesDataFromJson(String moviesJsonStr)
             throws JSONException {
 
-        final String OWM_RESULTS = "results";
-        final String OWM_ORIGINAL_TITLE = "original_title";
-        final String OWM_POSTER_PATH = "poster_path";
-        final String OWM_OVERVIEW = "overview";
-        final String OWM_USER_RATING = "vote_average";
-        final String OWM_RELEASE_DATE= "release_date";
+        final String RESULTS = "results";
+        final String ORIGINAL_TITLE = "original_title";
+        final String POSTER_PATH = "poster_path";
+        final String OVERVIEW = "overview";
+        final String USER_RATING = "vote_average";
+        final String RELEASE_DATE= "release_date";
 
         JSONObject moviesJson = new JSONObject(moviesJsonStr);
-        JSONArray moviesArray = moviesJson.getJSONArray(OWM_RESULTS);
+        JSONArray moviesArray = moviesJson.getJSONArray(RESULTS);
         ArrayList<Movie> moviesArrayList = new ArrayList<Movie>();
 
         for(int i = 0; i < moviesArray.length(); i++) {
@@ -125,11 +126,11 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             String releaseDate;
 
             JSONObject movieJSON = moviesArray.getJSONObject(i);
-            originalTitle = movieJSON.getString(OWM_ORIGINAL_TITLE);
-            moviePosterPath = movieJSON.getString(OWM_POSTER_PATH);
-            overview = movieJSON.getString(OWM_OVERVIEW);
-            userRating = movieJSON.getDouble(OWM_USER_RATING);
-            releaseDate = movieJSON.getString(OWM_RELEASE_DATE);
+            originalTitle = movieJSON.getString(ORIGINAL_TITLE);
+            moviePosterPath = moviePosterBasePath + movieJSON.getString(POSTER_PATH);
+            overview = movieJSON.getString(OVERVIEW);
+            userRating = movieJSON.getDouble(USER_RATING);
+            releaseDate = movieJSON.getString(RELEASE_DATE);
             Movie movie = new Movie(originalTitle, moviePosterPath, overview, userRating, releaseDate);
             moviesArrayList.add(movie);
         }

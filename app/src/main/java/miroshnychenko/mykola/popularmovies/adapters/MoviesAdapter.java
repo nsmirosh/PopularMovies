@@ -30,7 +30,7 @@ import miroshnychenko.mykola.popularmovies.models.Movie;
  */
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder> {
 
-    public static final String moviePosterBasePath = "http://image.tmdb.org/t/p/w500";
+
     public List<Movie> mMovies;
     private Context mContext;
     public MoviePosterClicks mListener;
@@ -84,7 +84,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
         Movie movie = mMovies.get(position);
         if (movie.getMoviePosterPath() != null) {
             Picasso.with(mContext)
-                    .load(moviePosterBasePath + movie.getMoviePosterPath())
+                    .load(movie.getMoviePosterPath())
                     .into(holder.mMovieIV);
 
         }
