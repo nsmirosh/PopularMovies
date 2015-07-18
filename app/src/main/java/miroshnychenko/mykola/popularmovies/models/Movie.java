@@ -1,10 +1,12 @@
 package miroshnychenko.mykola.popularmovies.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by nsmirosh on 7/17/2015.
  */
-public class Movie {
-
+public class Movie implements Parcelable {
 
     private String originalTitle;
     private String moviePosterPath;
@@ -19,6 +21,40 @@ public class Movie {
         this.userRating = userRating;
         this.releaseDate = releaseDate;
     }
+
+    public Movie(Parcel parcel) {
+        originalTitle = parcel.readString();
+        moviePosterPath = parcel.readString();
+        overview = parcel.readString();
+        userRating = parcel.readDouble();
+        releaseDate = parcel.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int i) {
+        dest.writeString(originalTitle);
+        dest.writeString(moviePosterPath);
+        dest.writeString(overview);
+        dest.writeDouble(userRating);
+        dest.writeString(releaseDate);
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
 
     public String getOriginalTitle() {
         return originalTitle;

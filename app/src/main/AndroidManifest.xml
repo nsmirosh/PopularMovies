@@ -3,6 +3,7 @@
     package="miroshnychenko.mykola.popularmovies" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,6 +18,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.DetailActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:label="@string/title_activity_detail" >
         </activity>
     </application>
 

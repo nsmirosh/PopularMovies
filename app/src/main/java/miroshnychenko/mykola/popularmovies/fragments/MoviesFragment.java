@@ -1,10 +1,12 @@
 package miroshnychenko.mykola.popularmovies.fragments;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,13 +19,16 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnItemClick;
+import butterknife.OnItemSelected;
 import miroshnychenko.mykola.popularmovies.R;
+import miroshnychenko.mykola.popularmovies.activities.DetailActivity;
 import miroshnychenko.mykola.popularmovies.adapters.MoviesAdapter;
 import miroshnychenko.mykola.popularmovies.models.Movie;
 import miroshnychenko.mykola.popularmovies.tasks.FetchMoviesTask;
 
 
-public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMoviesDownloadedListener {
+public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMoviesDownloadedListener, MoviesAdapter.MoviePosterClicks {
 
     public static final String TAG = MoviesFragment.class.getSimpleName();
 
@@ -50,7 +55,6 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_movies, container, false);
         ButterKnife.bind(this, view);
-        setRetainInstance(true);
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mMoviesRV.setLayoutManager(mLayoutManager);
         executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
@@ -62,9 +66,10 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
         super.onDetach();
     }
 
+
     @Override
     public void onMoviesDownloaded(List<Movie> movies) {
-        mMoviesAdapter = new MoviesAdapter(getActivity(), movies);
+        mMoviesAdapter = new MoviesAdapter(getActivity(), movies, this);
         mMoviesRV.setAdapter(mMoviesAdapter);
     }
 
@@ -93,5 +98,14 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
         mFetchMoviesTask = new FetchMoviesTask();
         mFetchMoviesTask.mCallback = this;
         mFetchMoviesTask.execute(getString(queryStringId));
+    }
+
+    @Override
+    public void onMoviePosterClicked(Movie movie) {
+        Intent intent = new Intent(getActivity(), DetailActivity.class);
+        intent.putExtra(DetailActivity.EXTRA_MOVIE, movie);
+        startActivity(intent);
+
+
     }
 }
