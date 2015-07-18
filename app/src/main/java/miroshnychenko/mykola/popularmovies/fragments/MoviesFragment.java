@@ -6,6 +6,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,16 +31,16 @@ import miroshnychenko.mykola.popularmovies.tasks.FetchMoviesTask;
 
 public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMoviesDownloadedListener {
 
-    public static final String ApiKey = "API Key: d5d716f0c3ba595706ba90ae3138a16a";
+    public static final String TAG = MoviesFragment.class.getSimpleName();
 
-
-    @Bind(R.id.fragment_movies_images_gv)
-    GridView imagesGV;
+    @Bind(R.id.fragment_movies_main_rv)
+    RecyclerView mMoviesRV;
 
     MoviesAdapter mMoviesAdapter;
 
+    private RecyclerView.LayoutManager mLayoutManager;
+
     public MoviesFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -48,9 +51,10 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_movies, container, false);
         ButterKnife.bind(this, view);
+        mLayoutManager = new GridLayoutManager(getActivity(), 2);
+        mMoviesRV.setLayoutManager(mLayoutManager);
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
         fetchMoviesTask.mCallback = this;
         fetchMoviesTask.execute("popularity.desc");
@@ -65,6 +69,6 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
     @Override
     public void onMoviesDownloaded(List<Movie> movies) {
         mMoviesAdapter = new MoviesAdapter(getActivity(), movies);
-        imagesGV.setAdapter(mMoviesAdapter);
+        mMoviesRV.setAdapter(mMoviesAdapter);
     }
 }

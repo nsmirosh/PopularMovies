@@ -2,13 +2,16 @@ package miroshnychenko.mykola.popularmovies.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -20,45 +23,55 @@ import miroshnychenko.mykola.popularmovies.models.Movie;
 /**
  * Created by nsmirosh on 7/15/2015.
  */
-public class MoviesAdapter extends BaseAdapter {
+public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder> {
 
-    public static final String moviePosterBasePath = " http://image.tmdb.org/t/p/w185";
+    public static final String moviePosterBasePath = "http://image.tmdb.org/t/p/w500";
+    private List<Movie> mMovies;
+    private Context mContext;
 
-    Context context;
-    List<Movie> movies;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        public ImageView mMovieIV;
+
+        public ViewHolder(View v) {
+            super(v);
+            mMovieIV = (ImageView) v.findViewById(R.id.adapter_movies_iv);
+        }
+    }
+
+    // Provide a suitable constructor (depends on the kind of dataset)
     public MoviesAdapter(Context context, List<Movie> movies) {
-        this.context = context;
-        this.movies = movies;
+        this.mContext = context;
+        mMovies = movies;
     }
 
     @Override
-    public int getCount() {
-        return movies.size();
+    public MoviesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                     int viewType) {
+
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.adapter_movies_row, parent, false);
+
+        return new ViewHolder(v);
     }
 
-    @Override
-    public Object getItem(int i) {
-        return movies.get(i);
-    }
 
     @Override
-    public long getItemId(int i) {
-        return 0;
-    }
+    public void onBindViewHolder(ViewHolder holder, int position) {
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+        Movie movie = mMovies.get(position);
+        if (movie.getMoviePosterPath() != null) {
+            Picasso.with(mContext)
+                    .load(moviePosterBasePath + movie.getMoviePosterPath())
+                    .into(holder.mMovieIV);
 
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.movies_list, parent, false);
         }
 
-        ImageView movieImage =  (ImageView) convertView.findViewById(R.id.movies_list_image_iv);
-        Picasso.with(context)
-                .load(moviePosterBasePath + ((Movie) getItem(position)).getMoviePosterPath())
-                .into(movieImage);
+        holder.mMovieIV.setTag(holder);
 
-        return convertView;
+    }
+    @Override
+    public int getItemCount() {
+        return mMovies.size();
     }
 }
