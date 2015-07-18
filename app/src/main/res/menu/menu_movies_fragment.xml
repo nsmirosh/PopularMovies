@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_movies_fragment_sort_popularity_desc"
+        android:title="@string/menu_movies_fragment_sort_popularity"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/menu_movies_fragment_sort_rating_desc"
+        android:title="@string/menu_movies_fragment_sort_rating"
+        app:showAsAction="never" />
+</menu>

@@ -1,23 +1,17 @@
 package miroshnychenko.mykola.popularmovies.fragments;
 
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
-
-import com.squareup.picasso.Picasso;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -38,6 +32,8 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
 
     MoviesAdapter mMoviesAdapter;
 
+    FetchMoviesTask mFetchMoviesTask;
+
     private RecyclerView.LayoutManager mLayoutManager;
 
     public MoviesFragment() {
@@ -46,6 +42,7 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -53,14 +50,13 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_movies, container, false);
         ButterKnife.bind(this, view);
+        setRetainInstance(true);
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mMoviesRV.setLayoutManager(mLayoutManager);
-        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        fetchMoviesTask.mCallback = this;
-        fetchMoviesTask.execute("popularity.desc");
-
+        executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
         return view;
     }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -70,5 +66,32 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
     public void onMoviesDownloaded(List<Movie> movies) {
         mMoviesAdapter = new MoviesAdapter(getActivity(), movies);
         mMoviesRV.setAdapter(mMoviesAdapter);
+    }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_movies_fragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_movies_fragment_sort_popularity_desc) {
+            executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
+            return true;
+        }
+
+        if (id == R.id.menu_movies_fragment_sort_rating_desc) {
+            executeFetchMoviesTask(R.string.fragment_movies_sort_rating_desc_parameter);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void executeFetchMoviesTask(int queryStringId) {
+        mFetchMoviesTask = new FetchMoviesTask();
+        mFetchMoviesTask.mCallback = this;
+        mFetchMoviesTask.execute(getString(queryStringId));
     }
 }

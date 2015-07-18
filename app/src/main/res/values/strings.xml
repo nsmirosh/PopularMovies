@@ -3,6 +3,14 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="menu_movies_fragment_sort_popularity">Sort by most popular</string>
+
+    <string name="menu_movies_fragment_sort_rating">Sort by highest rated</string>
+
+
+    <string name="fragment_movies_sort_popularity_desc_parameter">popularity.desc</string>
+    <string name="fragment_movies_sort_rating_desc_parameter">vote_average.desc</string>
+
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

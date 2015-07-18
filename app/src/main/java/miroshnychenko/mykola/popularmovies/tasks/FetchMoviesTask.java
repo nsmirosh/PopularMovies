@@ -33,27 +33,18 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
 
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
-    public static final String API_KEY = "d5d716f0c3ba595706ba90ae3138a16a";
+    public static final String API_KEY = "";
     @Override
     protected List<Movie> doInBackground(String... params) {
 
-        // If there's no zip code, there's nothing to look up.  Verify size of params.
         if (params.length == 0) {
             return null;
         }
-
-        // These two need to be declared outside the try/catch
-        // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-
-        // Will contain the raw JSON response as a string.
         String moviesJsonStr = null;
 
         try {
-            // Construct the URL for the OpenWeatherMap query
-            // Possible parameters are avaiable at OWM's forecast API page, at
-            // http://openweathermap.org/API#forecast
             final String MOVIE_BASE_URL =
                     "http://api.themoviedb.org/3/discover/movie?";
             final String SORT_BY_PARAM = "sort_by";
@@ -65,13 +56,9 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
                     .build();
 
             URL url = new URL(builtUri.toString());
-
-            // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
-
-            // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
@@ -82,21 +69,16 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
+
                 buffer.append(line + "\n");
             }
 
             if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
                 return null;
             }
             moviesJsonStr = buffer.toString();
         } catch (IOException e) {
             Log.e(TAG, "Error ", e);
-            // If the code didn't successfully get the movies data, there's no point in attemping
-            // to parse it.
             return null;
         } finally {
             if (urlConnection != null) {
@@ -117,8 +99,6 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             Log.e(TAG, e.getMessage(), e);
             e.printStackTrace();
         }
-
-        // This will only happen if there was an error getting or parsing the forecast.
         return null;
     }
 
@@ -144,7 +124,6 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             double userRating;
             String releaseDate;
 
-            // Get the JSON object representing the day
             JSONObject movieJSON = moviesArray.getJSONObject(i);
             originalTitle = movieJSON.getString(OWM_ORIGINAL_TITLE);
             moviePosterPath = movieJSON.getString(OWM_POSTER_PATH);
