@@ -10,6 +10,7 @@ import com.squareup.picasso.Picasso;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import miroshnychenko.mykola.popularmovies.R;
+import miroshnychenko.mykola.popularmovies.helpers.MovieDateHelper;
 import miroshnychenko.mykola.popularmovies.models.Movie;
 
 public class DetailActivity extends ActionBarActivity {
@@ -42,8 +43,8 @@ public class DetailActivity extends ActionBarActivity {
                     .load(movie.getMoviePosterPath())
                     .into(mPosterIV);
 
-            mReleaseDateTV.setText(movie.getReleaseDate());
-            mRatingTV.setText(String.valueOf(movie.getUserRating()));
+            mReleaseDateTV.setText(MovieDateHelper.parseReleaseDate(movie.getReleaseDate()));
+            mRatingTV.setText(String.valueOf(movie.getUserRating()) + "/10");
             mOverviewTV.setText(movie.getOverview());
 
         }
