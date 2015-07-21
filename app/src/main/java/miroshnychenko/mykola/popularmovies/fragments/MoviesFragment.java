@@ -1,7 +1,10 @@
 package miroshnychenko.mykola.popularmovies.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,12 +16,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.OnItemClick;
 import butterknife.OnItemSelected;
 import miroshnychenko.mykola.popularmovies.R;
@@ -34,6 +39,8 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
 
     @Bind(R.id.fragment_movies_main_rv)
     RecyclerView mMoviesRV;
+    @Bind(R.id.fragment_movies_no_network_tv)
+    TextView mNoNetworkTV;
 
     MoviesAdapter mMoviesAdapter;
 
@@ -47,7 +54,7 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+
     }
 
     @Override
@@ -57,13 +64,30 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
         ButterKnife.bind(this, view);
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mMoviesRV.setLayoutManager(mLayoutManager);
-        executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
+        if (isNetworkAvailable()) {
+            executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
+            setHasOptionsMenu(true);
+        }
+        else {
+            mNoNetworkTV.setVisibility(View.VISIBLE);
+            mMoviesRV.setVisibility(View.GONE);
+        }
         return view;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @OnClick(R.id.fragment_movies_no_network_tv)
+    void tryToDownload(){
+        if(isNetworkAvailable()) {
+            mNoNetworkTV.setVisibility(View.GONE);
+            mMoviesRV.setVisibility(View.VISIBLE);
+            executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
+            setHasOptionsMenu(true);
+        }
     }
 
 
@@ -105,7 +129,28 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
         Intent intent = new Intent(getActivity(), DetailActivity.class);
         intent.putExtra(DetailActivity.EXTRA_MOVIE, movie);
         startActivity(intent);
+    }
 
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm =
+                (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mLayoutManager = new GridLayoutManager(getActivity(), 4);
+            mMoviesRV.setLayoutManager(mLayoutManager);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            mLayoutManager = new GridLayoutManager(getActivity(), 2);
+            mMoviesRV.setLayoutManager(mLayoutManager);
+        }
     }
 }

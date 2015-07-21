@@ -24,7 +24,6 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new MoviesFragment())
                     .commit();
         }
-        ButterKnife.bind(this);
     }
 
 
