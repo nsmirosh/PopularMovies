@@ -16,8 +16,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.rahatarmanahmed.cpv.CircularProgressView;
 
 import java.util.List;
 
@@ -37,13 +40,17 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
 
     public static final String TAG = MoviesFragment.class.getSimpleName();
 
+    String mSortCriteria;
+
     @Bind(R.id.fragment_movies_main_rv)
     RecyclerView mMoviesRV;
     @Bind(R.id.fragment_movies_no_network_tv)
     TextView mNoNetworkTV;
 
-    MoviesAdapter mMoviesAdapter;
+    @Bind(R.id.fragment_movies_progress_bar)
+    CircularProgressView mProgressBar;
 
+    MoviesAdapter mMoviesAdapter;
     FetchMoviesTask mFetchMoviesTask;
 
     private RecyclerView.LayoutManager mLayoutManager;
@@ -64,14 +71,8 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
         ButterKnife.bind(this, view);
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mMoviesRV.setLayoutManager(mLayoutManager);
-        if (isNetworkAvailable()) {
-            executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
-            setHasOptionsMenu(true);
-        }
-        else {
-            mNoNetworkTV.setVisibility(View.VISIBLE);
-            mMoviesRV.setVisibility(View.GONE);
-        }
+        mSortCriteria = getString(R.string.fragment_movies_sort_popularity_desc_parameter);
+        executeFetchMoviesTask();
         return view;
     }
 
@@ -81,11 +82,11 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
     }
 
     @OnClick(R.id.fragment_movies_no_network_tv)
-    void tryToDownload(){
-        if(isNetworkAvailable()) {
+    void tryToDownload() {
+        if (isNetworkAvailable()) {
             mNoNetworkTV.setVisibility(View.GONE);
             mMoviesRV.setVisibility(View.VISIBLE);
-            executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
+            executeFetchMoviesTask();
             setHasOptionsMenu(true);
         }
     }
@@ -95,6 +96,8 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
     public void onMoviesDownloaded(List<Movie> movies) {
         mMoviesAdapter = new MoviesAdapter(getActivity(), movies, this);
         mMoviesRV.setAdapter(mMoviesAdapter);
+        mProgressBar.setVisibility(View.GONE);
+        mMoviesRV.setVisibility(View.VISIBLE);
     }
 
 
@@ -107,21 +110,31 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_movies_fragment_sort_popularity_desc) {
-            executeFetchMoviesTask(R.string.fragment_movies_sort_popularity_desc_parameter);
+            mSortCriteria = getString(R.string.fragment_movies_sort_popularity_desc_parameter);
+            executeFetchMoviesTask();
             return true;
         }
 
         if (id == R.id.menu_movies_fragment_sort_rating_desc) {
-            executeFetchMoviesTask(R.string.fragment_movies_sort_rating_desc_parameter);
+            mSortCriteria = getString(R.string.fragment_movies_sort_rating_desc_parameter);
+            executeFetchMoviesTask();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void executeFetchMoviesTask(int queryStringId) {
-        mFetchMoviesTask = new FetchMoviesTask();
-        mFetchMoviesTask.mCallback = this;
-        mFetchMoviesTask.execute(getString(queryStringId));
+    public void executeFetchMoviesTask() {
+        if (isNetworkAvailable()) {
+            mFetchMoviesTask = new FetchMoviesTask();
+            mFetchMoviesTask.mCallback = this;
+            mMoviesRV.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.VISIBLE);
+            mFetchMoviesTask.execute(mSortCriteria);
+            setHasOptionsMenu(true);
+        } else {
+            mNoNetworkTV.setVisibility(View.VISIBLE);
+            mMoviesRV.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -134,7 +147,7 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
 
     private boolean isNetworkAvailable() {
         ConnectivityManager cm =
-                (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
@@ -148,7 +161,7 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             mLayoutManager = new GridLayoutManager(getActivity(), 4);
             mMoviesRV.setLayoutManager(mLayoutManager);
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             mLayoutManager = new GridLayoutManager(getActivity(), 2);
             mMoviesRV.setLayoutManager(mLayoutManager);
         }
