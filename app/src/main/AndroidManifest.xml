@@ -26,6 +26,9 @@
             android:parentActivityName=".activities.MainActivity"
             android:label="@string/title_activity_detail" >
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="89f305b1e71e24c93c84b66ce6300f31b004d9fa" />
     </application>
 
 </manifest>

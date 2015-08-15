@@ -3,6 +3,7 @@ package miroshnychenko.mykola.popularmovies.activities;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,7 +16,7 @@ import miroshnychenko.mykola.popularmovies.R;
 import miroshnychenko.mykola.popularmovies.helpers.MovieDateHelper;
 import miroshnychenko.mykola.popularmovies.models.Movie;
 
-public class DetailActivity extends ActionBarActivity {
+public class DetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_MOVIE = "extra.movie";
 
