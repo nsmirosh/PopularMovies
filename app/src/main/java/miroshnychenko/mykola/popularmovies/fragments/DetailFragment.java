@@ -48,9 +48,8 @@ public class DetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
         Bundle arguments = getArguments();
-        if (arguments != null) {
+        if (arguments != null && arguments.containsKey(ARGS_MOVIE)) {
             Movie movie = arguments.getParcelable(ARGS_MOVIE);
-
             if(movie.getOriginalTitle() != null) {
                 mTitleTV.setText(movie.getOriginalTitle());
             }

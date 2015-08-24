@@ -26,12 +26,13 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import miroshnychenko.mykola.popularmovies.R;
 import miroshnychenko.mykola.popularmovies.activities.DetailActivity;
+import miroshnychenko.mykola.popularmovies.activities.MainActivity;
 import miroshnychenko.mykola.popularmovies.adapters.MoviesAdapter;
 import miroshnychenko.mykola.popularmovies.models.Movie;
 import miroshnychenko.mykola.popularmovies.tasks.FetchMoviesTask;
 
 
-public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMoviesDownloadedListener, MoviesAdapter.MoviePosterClicks {
+public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMoviesDownloadedListener {
 
     public static final String TAG = MoviesFragment.class.getSimpleName();
 
@@ -89,7 +90,8 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
 
     @Override
     public void onMoviesDownloaded(List<Movie> movies) {
-        mMoviesAdapter = new MoviesAdapter(getActivity(), movies, this);
+        MainActivity mActivity = (MainActivity) getActivity();
+        mMoviesAdapter = new MoviesAdapter(getActivity(), movies, mActivity);
         mMoviesRV.setAdapter(mMoviesAdapter);
         mProgressBar.setVisibility(View.GONE);
         mMoviesRV.setVisibility(View.VISIBLE);
@@ -132,12 +134,7 @@ public class MoviesFragment extends Fragment implements FetchMoviesTask.OnMovies
         }
     }
 
-    @Override
-    public void onMoviePosterClicked(Movie movie) {
-        Intent intent = new Intent(getActivity(), DetailActivity.class);
-        intent.putExtra(DetailActivity.EXTRA_MOVIE, movie);
-        startActivity(intent);
-    }
+
 
 
     private boolean isNetworkAvailable() {
