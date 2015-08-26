@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/fragment_movies"
-        android:name="miroshnychenko.mykola.popularmovies.fragments.MoviesFragment"
+        android:name="miroshnychenko.mykola.popularmovies.fragments.MovieFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

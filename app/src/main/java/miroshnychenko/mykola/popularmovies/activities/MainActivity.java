@@ -1,17 +1,16 @@
 package miroshnychenko.mykola.popularmovies.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import miroshnychenko.mykola.popularmovies.R;
-import miroshnychenko.mykola.popularmovies.adapters.MoviesAdapter;
 import miroshnychenko.mykola.popularmovies.fragments.DetailFragment;
-import miroshnychenko.mykola.popularmovies.fragments.MoviesFragment;
-import miroshnychenko.mykola.popularmovies.models.Movie;
+import miroshnychenko.mykola.popularmovies.fragments.MovieFragment;
 
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.MoviePosterClicks {
+public class MainActivity extends AppCompatActivity implements MovieFragment.Callback {
 
     boolean mTwoPane;
 
@@ -29,13 +28,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         }
     }
 
-
     @Override
-    public void onMoviePosterClicked(Movie movie) {
-
+    public void onItemSelected(Uri movieUri) {
         if (mTwoPane) {
             Bundle args = new Bundle();
-            args.putParcelable(DetailFragment.ARGS_MOVIE, movie);
+            args.putParcelable(DetailFragment.ARGS_MOVIE_URI, movieUri);
 
             DetailFragment fragment = new DetailFragment();
             fragment.setArguments(args);
@@ -44,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                     .commit();
         } else {
             Intent intent = new Intent(this, DetailActivity.class);
-            intent.putExtra(DetailActivity.EXTRA_MOVIE, movie);
+            intent.setData(movieUri);
             startActivity(intent);
         }
     }

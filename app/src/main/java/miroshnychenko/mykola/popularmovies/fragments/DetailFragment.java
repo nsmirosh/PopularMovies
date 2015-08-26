@@ -1,11 +1,13 @@
 package miroshnychenko.mykola.popularmovies.fragments;
 
-import android.annotation.TargetApi;
-import android.content.Intent;
-import android.os.Build;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,10 +25,11 @@ import miroshnychenko.mykola.popularmovies.models.Movie;
 /**
  * Created by nsmirosh on 8/24/2015.
  */
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String ARGS_MOVIE = "args.movie";
+    public static final String ARGS_MOVIE_URI = "args.movie.uri";
     public static final String FRAGMENT_TAG = "DetailFragmentTag";
+    public static final int DETAIL_LOADER = 0;
 
     @Bind(R.id.fragment_detail_title_tv)
     TextView mTitleTV;
@@ -40,6 +43,16 @@ public class DetailFragment extends Fragment {
     TextView mOverviewTV;
 
 
+    static final int COL_ID = 0;
+    static final int COL_MOVIE_ID = 1;
+    static final int COL_TITLE = 2;
+    static final int COL_POSTER_PATH = 3;
+    static final int COL_OVERVIEW = 4;
+    static final int COL_USER_RATING = 5;
+    static final int COL_RELEASE_DATE = 6;
+
+    Uri mMovieUri;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,33 +61,18 @@ public class DetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
         Bundle arguments = getArguments();
-        if (arguments != null && arguments.containsKey(ARGS_MOVIE)) {
-            Movie movie = arguments.getParcelable(ARGS_MOVIE);
-            if(movie.getOriginalTitle() != null) {
-                mTitleTV.setText(movie.getOriginalTitle());
-            }
 
-            if (movie.getMoviePosterPath() != null) {
-                Picasso.with(getActivity())
-                        .load(movie.getMoviePosterPath())
-                        .into(mPosterIV);
-            }
-
-            if (movie.getReleaseDate() != null) {
-                mReleaseDateTV.setText(movie.getReleaseDate());
-            }
-
-            if (movie.getUserRating() != 0) {
-                //todo refactor with xliff attribute
-                mRatingTV.setText(String.valueOf(movie.getUserRating()) + "/10");
-            }
-            if (movie.getOverview() != null) {
-                mOverviewTV.setText(movie.getOverview());
-            }
+        if (arguments != null) {
+            mMovieUri = arguments.getParcelable(ARGS_MOVIE_URI);
         }
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
 
 
 //    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -92,5 +90,39 @@ public class DetailFragment extends Fragment {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (null != mMovieUri) {
+            return new CursorLoader(
+                    getActivity(),
+                    mMovieUri,
+                    null,
+                    null,
+                    null,
+                    null);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null && data.moveToFirst()) {
+            mTitleTV.setText(data.getString(COL_TITLE));
+
+            Picasso.with(getActivity())
+                    .load(data.getString(COL_POSTER_PATH))
+                    .into(mPosterIV);
+
+            mReleaseDateTV.setText(data.getString(COL_RELEASE_DATE));
+            mRatingTV.setText(getActivity().getString(R.string.format_user_rating, data.getString(COL_USER_RATING)));
+            mOverviewTV.setText(data.getString(COL_OVERVIEW));
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

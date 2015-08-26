@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import miroshnychenko.mykola.popularmovies.activities.MainActivity;
-import miroshnychenko.mykola.popularmovies.fragments.MoviesFragment;
+import miroshnychenko.mykola.popularmovies.fragments.MovieFragment;
 
 /**
  * Created by nsmirosh on 8/24/2015.
@@ -15,7 +15,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
 
     private MainActivity mMainActivity;
-    private MoviesFragment mMoviesFragment;
+    private MovieFragment mMovieFragment;
 
     public MainActivityTest() {
         super(MainActivity.class);
@@ -26,12 +26,12 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     protected void setUp() throws Exception {
         super.setUp();
         mMainActivity = getActivity();
-        mMoviesFragment = (MoviesFragment) mMainActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_movies);
+        mMovieFragment = (MovieFragment) mMainActivity.getSupportFragmentManager().findFragmentById(R.id.fragment_movies);
     }
 
     public void testPreconditions() {
         assertNotNull("mMainActivity is null", mMainActivity);
-        assertNotNull("mMoviesFragment is null", mMoviesFragment);
+        assertNotNull("mMoviesFragment is null", mMovieFragment);
     }
 
     @MediumTest

@@ -36,7 +36,7 @@ public class DetailActivityTest extends ActivityUnitTestCase<DetailActivity> {
 
         ContextThemeWrapper context = new ContextThemeWrapper(getInstrumentation().getTargetContext(), R.style.AppTheme);
         setActivityContext(context);
-        mMovie = new Movie("Terminator", "http://img-9gag-fun.9cache.com/photo/am8PQE9_700b.jpg", "overview", 5.0, "27/07");
+//        mMovie = new Movie("Terminator", "http://img-9gag-fun.9cache.com/photo/am8PQE9_700b.jpg", "overview", 5.0, "27/07");
         mLaunchIntent = new Intent(context, DetailActivity.class);
         mLaunchIntent.putExtra(DetailActivity.EXTRA_MOVIE, mMovie);
         mDetailActivity = getActivity();
@@ -61,12 +61,6 @@ public class DetailActivityTest extends ActivityUnitTestCase<DetailActivity> {
     public void testDetailTitleTV_labelText() {
         startActivity(mLaunchIntent, null, null);
 
-        mDetailTitleTV =
-                (TextView) mDetailActivity
-                        .findViewById(R.id.activity_detail_title_tv);
-
-        mPosterIV = (ImageView) mDetailActivity
-                .findViewById(R.id.activity_detail_poster_iv);
 
         final String expected =
                 "Terminator";

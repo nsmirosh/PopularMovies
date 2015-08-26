@@ -1,5 +1,7 @@
 package miroshnychenko.mykola.popularmovies.tasks;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,7 +21,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
+import miroshnychenko.mykola.popularmovies.data.MovieContract;
 import miroshnychenko.mykola.popularmovies.models.Movie;
 
 /**
@@ -29,7 +33,11 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
     public static final String TAG = FetchMoviesTask.class.getSimpleName();
 
-    public OnMoviesDownloadedListener mCallback;
+    private final Context mContext;
+
+    public FetchMoviesTask(Context context) {
+        mContext = context;
+    }
 
 
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
@@ -107,6 +115,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             throws JSONException {
 
         final String RESULTS = "results";
+        final String MOVIE_ID = "id";
         final String ORIGINAL_TITLE = "original_title";
         final String POSTER_PATH = "poster_path";
         final String OVERVIEW = "overview";
@@ -115,7 +124,9 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
         JSONObject moviesJson = new JSONObject(moviesJsonStr);
         JSONArray moviesArray = moviesJson.getJSONArray(RESULTS);
-        ArrayList<Movie> moviesArrayList = new ArrayList<Movie>();
+        ArrayList<Movie> moviesArrayList = new ArrayList<>();
+
+        Vector<ContentValues> vMovieValues = new Vector<ContentValues>(moviesArray.length());
 
         for(int i = 0; i < moviesArray.length(); i++) {
 
@@ -126,26 +137,34 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             String releaseDate;
 
             JSONObject movieJSON = moviesArray.getJSONObject(i);
+            long id = movieJSON.getLong(MOVIE_ID);
             originalTitle = movieJSON.getString(ORIGINAL_TITLE);
             moviePosterPath = moviePosterBasePath + movieJSON.getString(POSTER_PATH);
             overview = movieJSON.getString(OVERVIEW);
             userRating = movieJSON.getDouble(USER_RATING);
             releaseDate = movieJSON.getString(RELEASE_DATE);
-            Movie movie = new Movie(originalTitle, moviePosterPath, overview, userRating, releaseDate);
-            moviesArrayList.add(movie);
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, id);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, originalTitle);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, moviePosterPath);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, overview);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_USER_RATING, userRating);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
+            vMovieValues.add(contentValues);
         }
+
+        int inserted = 0;
+        // add to database
+        if ( vMovieValues.size() > 0 ) {
+            ContentValues[] cvArray = new ContentValues[vMovieValues.size()];
+            vMovieValues.toArray(cvArray);
+            inserted = mContext.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
+        }
+
+        Log.d(TAG, "FetchMoviesTask Complete. " + inserted + " Inserted");
         return moviesArrayList;
 
-    }
-
-    @Override
-    protected void onPostExecute(List<Movie> data) {
-        mCallback.onMoviesDownloaded(data);
-    }
-
-
-    public static interface OnMoviesDownloadedListener {
-        void onMoviesDownloaded(List<Movie> movies);
     }
 
 }
