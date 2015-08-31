@@ -42,7 +42,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
     public static final String API_KEY = "d5d716f0c3ba595706ba90ae3138a16a";
-    public static final String moviePosterBasePath = "http://image.tmdb.org/t/p/w500";
+    public static final String moviePosterBasePath = "https://image.tmdb.org/t/p/w500";
     @Override
     protected List<Movie> doInBackground(String... params) {
 
@@ -55,7 +55,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
         try {
             final String MOVIE_BASE_URL =
-                    "http://api.themoviedb.org/3/discover/movie?";
+                    "https://api.themoviedb.org/3/discover/movie?";
             final String SORT_BY_PARAM = "sort_by";
             final String API_KEY_PARAM = "api_key";
 
@@ -87,7 +87,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             }
             moviesJsonStr = buffer.toString();
         } catch (IOException e) {
-            Log.e(TAG, "Error ", e);
+            Log.e(TAG, "Error " + e, e);
             return null;
         } finally {
             if (urlConnection != null) {

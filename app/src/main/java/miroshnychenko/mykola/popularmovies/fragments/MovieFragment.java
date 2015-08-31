@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,17 +24,22 @@ import miroshnychenko.mykola.popularmovies.R;
 import miroshnychenko.mykola.popularmovies.adapters.MovieAdapter;
 import miroshnychenko.mykola.popularmovies.data.MovieContract;
 import miroshnychenko.mykola.popularmovies.tasks.FetchMoviesTask;
+import miroshnychenko.mykola.popularmovies.tasks.FetchReviewsTask;
+import miroshnychenko.mykola.popularmovies.utils.PreferenceUtils;
 
 
 public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String TAG = MovieFragment.class.getSimpleName();
     public static final int MOVIE_LOADER = 0;
+    private static final String SELECTED_KEY = "selected_position";
 
     String mSortCriteria;
 
     @Bind(R.id.fragment_movies_main_gv)
     GridView mMoviesGV;
+
+    PreferenceUtils mPreferenceUtils;
 //    @Bind(R.id.fragment_movies_no_network_tv)
 //    TextView mNoNetworkTV;
 //
@@ -46,7 +50,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     MovieAdapter mMovieAdapter;
 
-    private RecyclerView.LayoutManager mLayoutManager;
 
     static final int COL_ID = 0;
     static final int COL_MOVIE_ID = 1;
@@ -71,6 +74,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
     }
 
@@ -79,8 +83,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_movies, container, false);
         ButterKnife.bind(this, view);
+        mPreferenceUtils = new PreferenceUtils(getActivity());
         mSortCriteria = getString(R.string.fragment_movies_sort_popularity_desc_parameter);
-        fetchMoviesTask();
+        onSortCriteriaChanged();
         mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
         mMoviesGV.setAdapter(mMovieAdapter);
 
@@ -91,14 +96,21 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null) {
+
+                    long movieId  = cursor.getLong(COL_MOVIE_ID);
                     ((Callback) getActivity())
-                            .onItemSelected(MovieContract.MovieEntry.buildMovieUri(
-                                    cursor.getLong(COL_MOVIE_ID)
-                            ));
+                            .onItemSelected(MovieContract.MovieEntry.buildMovieUri(movieId));
+
+                    FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
+                    fetchReviewsTask.execute(movieId);
                 }
                 mPosition = position;
             }
         });
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
 
         return view;
     }
@@ -109,12 +121,93 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         super.onActivityCreated(savedInstanceState);
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onSortCriteriaChanged() {
+        updateMovies();
+        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
     }
 
-//    @OnClick(R.id.fragment_movies_no_network_tv)
+    private void updateMovies() {
+        FetchMoviesTask moviesTask = new FetchMoviesTask(getActivity());
+        String sortCriteria = mPreferenceUtils.getSortCriteria();
+        moviesTask.execute(sortCriteria);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_movies_fragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_movies_fragment_sort_popularity_desc) {
+            mPreferenceUtils.saveSortCriteria(getString(R.string.fragment_movies_sort_popularity_desc_parameter));
+            onSortCriteriaChanged();
+            return true;
+        }
+
+        if (id == R.id.menu_movies_fragment_sort_rating_desc) {
+            mPreferenceUtils.saveSortCriteria(getString(R.string.fragment_movies_sort_rating_desc_parameter));
+            onSortCriteriaChanged();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(),
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        mMovieAdapter.swapCursor(data);
+        if (mPosition != GridView.INVALID_POSITION) {
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            mMoviesGV.smoothScrollToPosition(mPosition);
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mMovieAdapter.swapCursor(null);
+    }
+
+
+    //    public void fetchMoviesTask() {
+////        if (isNetworkAvailable()) {
+//        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity());
+//        fetchMoviesTask.execute(mSortCriteria);
+////            mMoviesRV.setVisibility(View.GONE);
+////            mProgressBar.setVisibility(View.VISIBLE);
+//
+////            setHasOptionsMenu(true);
+////        } else {
+////            mNoNetworkTV.setVisibility(View.VISIBLE);
+////            mMoviesRV.setVisibility(View.GONE);
+////        }
+//    }
+
+
+//    private boolean isNetworkAvailable() {
+//        ConnectivityManager cm =
+//                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+//        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+//
+//    }
+
+    //    @OnClick(R.id.fragment_movies_no_network_tv)
 //    void tryToDownload() {
 //        if (isNetworkAvailable()) {
 //            mNoNetworkTV.setVisibility(View.GONE);
@@ -134,91 +227,4 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 //        mMoviesRV.setVisibility(View.VISIBLE);
 //    }
 
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_movies_fragment, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.menu_movies_fragment_sort_popularity_desc) {
-            mSortCriteria = getString(R.string.fragment_movies_sort_popularity_desc_parameter);
-            fetchMoviesTask();
-            return true;
-        }
-
-        if (id == R.id.menu_movies_fragment_sort_rating_desc) {
-            mSortCriteria = getString(R.string.fragment_movies_sort_rating_desc_parameter);
-            fetchMoviesTask();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void fetchMoviesTask() {
-//        if (isNetworkAvailable()) {
-        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity());
-        fetchMoviesTask.execute(mSortCriteria);
-//            mMoviesRV.setVisibility(View.GONE);
-//            mProgressBar.setVisibility(View.VISIBLE);
-
-//            setHasOptionsMenu(true);
-//        } else {
-//            mNoNetworkTV.setVisibility(View.VISIBLE);
-//            mMoviesRV.setVisibility(View.GONE);
-//        }
-    }
-
-
-//    private boolean isNetworkAvailable() {
-//        ConnectivityManager cm =
-//                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-//        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-//
-//    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-//        // Checks the orientation of the screen
-//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            mLayoutManager = new GridLayoutManager(getActivity(), 4);
-//            mMoviesRV.setLayoutManager(mLayoutManager);
-//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-//            mLayoutManager = new GridLayoutManager(getActivity(), 2);
-//            mMoviesRV.setLayoutManager(mLayoutManager);
-//        }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(),
-                MovieContract.MovieEntry.CONTENT_URI,
-                null,
-                null,
-                null,
-                null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-//        data.moveToFirst();
-//        Log.d(TAG, data.getString(COL_TITLE));
-        mMovieAdapter.swapCursor(data);
-//        if (mPosition != ListView.INVALID_POSITION) {
-//            // If we don't need to restart the loader, and there's a desired position to restore
-//            // to, do so now.
-//            mListView.smoothScrollToPosition(mPosition);
-//        }
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mMovieAdapter.swapCursor(null);
-    }
 }

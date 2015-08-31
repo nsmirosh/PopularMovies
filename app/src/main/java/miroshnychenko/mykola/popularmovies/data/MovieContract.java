@@ -42,6 +42,7 @@ public class MovieContract {
     // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
     // At least, let's hope not.  Don't be that dev, reader.  Don't be that dev.
     public static final String PATH_MOVIE = "movie";
+    public static final String PATH_REVIEW = "review";
 
     // To make it easy to query for the exact date, we normalize all dates that go into
     // the database to the start of the the Julian day at UTC.
@@ -53,7 +54,6 @@ public class MovieContract {
         return time.setJulianDay(julianDay);
     }
 
-    /* Inner class that defines the table contents of the location table */
     public static final class MovieEntry implements BaseColumns {
 
         public static final Uri CONTENT_URI =
@@ -68,7 +68,6 @@ public class MovieContract {
 
         public static final String COLUMN_MOVIE_ID = "movie_id";
         public static final String COLUMN_TITLE = "title";
-      //  public static final String COLUMN_FAVORITE = "favorite";
         public static final String COLUMN_POSTER_PATH = "poster_path";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_USER_RATING = "user_rating";
@@ -84,6 +83,43 @@ public class MovieContract {
 
         public static long getMovieIdFromUri(Uri uri) {
             return Long.parseLong(uri.getPathSegments().get(1));
+        }
+    }
+
+    public static final class ReviewEntry implements BaseColumns {
+
+//        public static final Uri CONTENT_URI =
+//                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEW).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+
+        public static final String TABLE_NAME = "review";
+
+        public static final String COLUMN_REVIEW_ID = "review_id";
+        public static final String COLUMN_AUTHOR = "author";
+        public static final String COLUMN_CONTENT = "content";
+        public static final String COLUMN_MOVIE_KEY = "movie_id";
+
+
+//        public static Uri buildMovieIdUri(long movieId) {
+//            return CONTENT_URI.buildUpon().appendQueryParameter(COLUMN_MOVIE_ID, Long.toString(movieId)).build();
+//        }
+
+//        public static Uri buildReviewUri(long id) {
+////            return ContentUris.withAppendedId(CONTENT_URI, id);
+//        }
+
+//        public static Uri buildReviewsWithMovieIdUri(long movieId) {
+//            return CONTENT_URI.buildUpon().appendPath(Long.toString(movieId))
+//                    .appendPath(PATH_REVIEW).build();
+//        }
+
+        public static Uri buildReviewsWithMovieIdUri(long movieId) {
+            return MovieEntry.CONTENT_URI.buildUpon().appendPath(Long.toString(movieId))
+                    .appendPath(PATH_REVIEW).build();
         }
     }
 }

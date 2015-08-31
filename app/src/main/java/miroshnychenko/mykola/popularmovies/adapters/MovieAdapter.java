@@ -67,12 +67,4 @@ public class MovieAdapter extends CursorAdapter {
         }
 
     }
-
-
-//    // Provide a suitable constructor (depends on the kind of dataset)
-//    public MoviesAdapter(Context context, MoviePosterClicks listener) {
-//        this.mContext = context;
-//        mMovies = movies;
-//        mListener = listener;
-//    }
 }

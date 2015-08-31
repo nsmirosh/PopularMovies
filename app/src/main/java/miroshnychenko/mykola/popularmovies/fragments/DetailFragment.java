@@ -8,11 +8,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -20,6 +22,9 @@ import com.squareup.picasso.Picasso;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import miroshnychenko.mykola.popularmovies.R;
+import miroshnychenko.mykola.popularmovies.adapters.MovieAdapter;
+import miroshnychenko.mykola.popularmovies.adapters.ReviewAdapter;
+import miroshnychenko.mykola.popularmovies.data.MovieContract;
 import miroshnychenko.mykola.popularmovies.models.Movie;
 
 /**
@@ -27,9 +32,12 @@ import miroshnychenko.mykola.popularmovies.models.Movie;
  */
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String TAG = DetailFragment.class.getSimpleName();
+
     public static final String ARGS_MOVIE_URI = "args.movie.uri";
     public static final String FRAGMENT_TAG = "DetailFragmentTag";
-    public static final int DETAIL_LOADER = 0;
+    public static final int DETAIL_LOADER = 1;
+    public static final int REVIEW_LOADER = 2;
 
     @Bind(R.id.fragment_detail_title_tv)
     TextView mTitleTV;
@@ -42,6 +50,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Bind(R.id.fragment_detail_overview_tv)
     TextView mOverviewTV;
 
+    @Bind(R.id.fragment_detail_review_lv)
+    ListView mReviewLV;
+
 
     static final int COL_ID = 0;
     static final int COL_MOVIE_ID = 1;
@@ -52,6 +63,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     static final int COL_RELEASE_DATE = 6;
 
     Uri mMovieUri;
+
+    ReviewAdapter mReviewAdapter;
 
 
     @Override
@@ -65,6 +78,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (arguments != null) {
             mMovieUri = arguments.getParcelable(ARGS_MOVIE_URI);
         }
+
+        getLoaderManager().initLoader(REVIEW_LOADER, null, this);
+
+        mReviewAdapter = new ReviewAdapter(getActivity(), null, 0);
+        mReviewLV.setAdapter(mReviewAdapter);
         return rootView;
     }
 
@@ -73,13 +91,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
-
-
-//    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-//    @Override
-//    public Intent getParentActivityIntent() {
-//        return super.getParentActivityIntent().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -94,31 +105,69 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (null != mMovieUri) {
-            return new CursorLoader(
-                    getActivity(),
-                    mMovieUri,
-                    null,
-                    null,
-                    null,
-                    null);
+        switch(id) {
+            case DETAIL_LOADER:
+                if (null != mMovieUri) {
+                    return new CursorLoader(
+                            getActivity(),
+                            mMovieUri,
+                            null,
+                            null,
+                            null,
+                            null);
+                }
+                break;
+            case REVIEW_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
+                                MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
+                        null,
+                        null,
+                        null,
+                        null);
         }
+
         return null;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data != null && data.moveToFirst()) {
-            mTitleTV.setText(data.getString(COL_TITLE));
+        switch(loader.getId()) {
+            case DETAIL_LOADER:
+                if (data != null && data.moveToFirst()) {
+                    mTitleTV.setText(data.getString(COL_TITLE));
 
-            Picasso.with(getActivity())
-                    .load(data.getString(COL_POSTER_PATH))
-                    .into(mPosterIV);
+                    Picasso.with(getActivity())
+                            .load(data.getString(COL_POSTER_PATH))
+                            .into(mPosterIV);
 
-            mReleaseDateTV.setText(data.getString(COL_RELEASE_DATE));
-            mRatingTV.setText(getActivity().getString(R.string.format_user_rating, data.getString(COL_USER_RATING)));
-            mOverviewTV.setText(data.getString(COL_OVERVIEW));
+                    mReleaseDateTV.setText(data.getString(COL_RELEASE_DATE));
+                    mRatingTV.setText(getActivity().getString(R.string.format_user_rating, data.getString(COL_USER_RATING)));
+                    mOverviewTV.setText(data.getString(COL_OVERVIEW));
+
+
+                    Cursor c = getActivity().getContentResolver().query(MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
+                            MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
+                            null,
+                            null,
+                            null,
+                            null);
+
+                    while (c.moveToNext()) {
+                        Log.d(TAG, c.getString(2));
+                    }
+                }
+                break;
+            case REVIEW_LOADER:
+
+                Log.d(TAG, data.getCount() + "");
+                data.moveToFirst();
+                Log.d(TAG, data.getString(2));
+                mReviewAdapter.swapCursor(data);
+                break;
         }
+
     }
 
     @Override
