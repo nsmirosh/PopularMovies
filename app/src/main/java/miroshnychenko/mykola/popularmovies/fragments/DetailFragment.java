@@ -3,7 +3,9 @@ package miroshnychenko.mykola.popularmovies.fragments;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
@@ -19,13 +21,18 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import miroshnychenko.mykola.popularmovies.R;
 import miroshnychenko.mykola.popularmovies.adapters.MovieAdapter;
 import miroshnychenko.mykola.popularmovies.adapters.ReviewAdapter;
 import miroshnychenko.mykola.popularmovies.data.MovieContract;
 import miroshnychenko.mykola.popularmovies.models.Movie;
+import miroshnychenko.mykola.popularmovies.models.Review;
 
 /**
  * Created by nsmirosh on 8/24/2015.
@@ -50,8 +57,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Bind(R.id.fragment_detail_overview_tv)
     TextView mOverviewTV;
 
-    @Bind(R.id.fragment_detail_review_lv)
-    ListView mReviewLV;
+//    @Bind(R.id.fragment_detail_review_lv)
+//    ListView mReviewLV;
 
 
     static final int COL_ID = 0;
@@ -64,7 +71,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     Uri mMovieUri;
 
-    ReviewAdapter mReviewAdapter;
+//    ReviewAdapter mReviewAdapter;
+    Cursor mReviewCursor;
 
 
     @Override
@@ -81,9 +89,33 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         getLoaderManager().initLoader(REVIEW_LOADER, null, this);
 
-        mReviewAdapter = new ReviewAdapter(getActivity(), null, 0);
-        mReviewLV.setAdapter(mReviewAdapter);
+//        mReviewLV.setAdapter(mReviewAdapter);
         return rootView;
+    }
+
+    @OnClick(R.id.fragment_detail_show_reviews_btn)
+    public void showReviews() {
+        if (mReviewCursor.moveToFirst()) {
+            List<Review> reviews = new ArrayList<>();
+
+            for (int i = 0; i < mReviewCursor.getCount(); i ++) {
+                String id = mReviewCursor.getString(1);
+                String author = mReviewCursor.getString(2);
+                String content = mReviewCursor.getString(3);
+                Review review = new Review(id, author, content);
+                reviews.add(review);
+                mReviewCursor.moveToNext();
+            }
+
+            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+            Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(ReviewsDialogFragment.FRAGMENT_TAG);
+            if (prev != null) {
+                ft.remove(prev);
+            }
+            ft.addToBackStack(null);
+            DialogFragment newFragment = ReviewsDialogFragment.newInstance(reviews);
+            newFragment.show(ft, ReviewsDialogFragment.FRAGMENT_TAG);
+        }
     }
 
     @Override
@@ -145,26 +177,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     mReleaseDateTV.setText(data.getString(COL_RELEASE_DATE));
                     mRatingTV.setText(getActivity().getString(R.string.format_user_rating, data.getString(COL_USER_RATING)));
                     mOverviewTV.setText(data.getString(COL_OVERVIEW));
-
-
-                    Cursor c = getActivity().getContentResolver().query(MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
-                            MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
-                            null,
-                            null,
-                            null,
-                            null);
-
-                    while (c.moveToNext()) {
-                        Log.d(TAG, c.getString(2));
-                    }
                 }
                 break;
             case REVIEW_LOADER:
-
-                Log.d(TAG, data.getCount() + "");
-                data.moveToFirst();
-                Log.d(TAG, data.getString(2));
-                mReviewAdapter.swapCursor(data);
+                mReviewCursor = data;
                 break;
         }
 

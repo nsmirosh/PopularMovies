@@ -25,6 +25,7 @@ import miroshnychenko.mykola.popularmovies.adapters.MovieAdapter;
 import miroshnychenko.mykola.popularmovies.data.MovieContract;
 import miroshnychenko.mykola.popularmovies.tasks.FetchMoviesTask;
 import miroshnychenko.mykola.popularmovies.tasks.FetchReviewsTask;
+import miroshnychenko.mykola.popularmovies.tasks.FetchTrailersTask;
 import miroshnychenko.mykola.popularmovies.utils.PreferenceUtils;
 
 
@@ -103,6 +104,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
                     FetchReviewsTask fetchReviewsTask = new FetchReviewsTask(getActivity());
                     fetchReviewsTask.execute(movieId);
+
+                    FetchTrailersTask fetchTrailersTask = new FetchTrailersTask(getActivity());
+                    fetchTrailersTask.execute(movieId);
                 }
                 mPosition = position;
             }

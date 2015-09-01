@@ -33,6 +33,7 @@ public class MovieProvider extends ContentProvider {
     static final int MOVIES = 100;
     static final int MOVIE_ID = 101;
     static final int REVIEWS = 102;
+    static final int TRAILERS = 103;
 
 
     private static final SQLiteQueryBuilder sReviewsByMovieIdQueryBuilder;
@@ -59,6 +60,10 @@ public class MovieProvider extends ContentProvider {
     private static final String sReviewsByMovieIdSelection =
             MovieContract.ReviewEntry.TABLE_NAME +
                     "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + " = ? ";
+
+    private static final String sTrailersByMovieIdSelection =
+            MovieContract.TrailerEntry.TABLE_NAME +
+                    "." + MovieContract.TrailerEntry.COLUMN_MOVIE_KEY + " = ? ";
 
 
     private Cursor getMovieById(
@@ -98,6 +103,24 @@ public class MovieProvider extends ContentProvider {
 
     }
 
+    private Cursor getMovieTrailers(
+            Uri uri, String[] projection, String sortOrder) {
+        long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+
+        String[] selectionArgs = new String[]{Long.toString(movieId)};
+
+        return mOpenHelper.getReadableDatabase().query(
+                MovieContract.TrailerEntry.TABLE_NAME,
+                projection,
+                sTrailersByMovieIdSelection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+
+    }
+
     /*
         Students: Here is where you need to create the UriMatcher. This UriMatcher will
         match each URI to the WEATHER, WEATHER_WITH_LOCATION, WEATHER_WITH_LOCATION_AND_DATE,
@@ -118,6 +141,7 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIES);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#", MOVIE_ID);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/" + MovieContract.PATH_REVIEW, REVIEWS);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/" + MovieContract.PATH_TRAILER, TRAILERS);
         return matcher;
     }
 
@@ -146,6 +170,8 @@ public class MovieProvider extends ContentProvider {
             case MOVIE_ID:
                 return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
             case REVIEWS:
+                return MovieContract.ReviewEntry.CONTENT_TYPE;
+            case TRAILERS:
                 return MovieContract.ReviewEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -180,6 +206,10 @@ public class MovieProvider extends ContentProvider {
                 retCursor = getMovieReviews(uri, projection, sortOrder);
             }
             break;
+            case TRAILERS: {
+                retCursor = getMovieTrailers(uri, projection, sortOrder);
+            }
+            break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -208,16 +238,6 @@ public class MovieProvider extends ContentProvider {
 
             }
             break;
-//            case REVIEWS: {
-//                long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, values);
-//                if (_id > 0) {
-//                    returnUri = MovieContract.ReviewEntry.buildReviewUri(_id);
-//                } else {
-//                    throw new android.database.SQLException("Failed to insert row into " + uri);
-//                }
-//                getContext().getContentResolver().notifyChange(uri, null);
-//            }
-//            break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -300,6 +320,21 @@ public class MovieProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                break;
+            case TRAILERS:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
                         }

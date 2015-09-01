@@ -50,32 +50,39 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + MovieContract.ReviewEntry.TABLE_NAME + " (" +
                 MovieContract.ReviewEntry._ID + " INTEGER PRIMARY KEY," +
                 MovieContract.ReviewEntry.COLUMN_REVIEW_ID + " TEXT UNIQUE NOT NULL, " +
-                MovieContract.ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
                 MovieContract.ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
+                MovieContract.ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
                 MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL, " +
 
 
                 " FOREIGN KEY (" + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
                 MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry.COLUMN_MOVIE_ID + "), " +
 
-
                 " UNIQUE (" + MovieContract.ReviewEntry.COLUMN_REVIEW_ID + ") ON CONFLICT REPLACE);";;
 
+        final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + MovieContract.TrailerEntry.TABLE_NAME + " (" +
+                MovieContract.TrailerEntry._ID + " INTEGER PRIMARY KEY," +
+                MovieContract.TrailerEntry.COLUMN_TRAILER_ID + " TEXT UNIQUE NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_YOUTUBE_KEY + " TEXT NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL, " +
+
+                " FOREIGN KEY (" + MovieContract.TrailerEntry.COLUMN_MOVIE_KEY+ ") REFERENCES " +
+                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry.COLUMN_MOVIE_ID + "), " +
+
+                " UNIQUE (" + MovieContract.TrailerEntry.COLUMN_TRAILER_ID + ") ON CONFLICT REPLACE);";;
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_REVIEW_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_TRAILER_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
-        // Note that this only fires if you change the version number for your database.
-        // It does NOT depend on the version number for your application.
-        // If you want to update the schema without wiping data, commenting out the next 2 lines
-        // should be your top priority before modifying this method.
+
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.ReviewEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.TrailerEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

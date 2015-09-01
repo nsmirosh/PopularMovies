@@ -1,10 +1,7 @@
 package miroshnychenko.mykola.popularmovies.tasks;
 
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,7 +10,7 @@ import java.util.List;
 import java.util.Vector;
 
 
-import miroshnychenko.mykola.popularmovies.ReviewApi;
+import miroshnychenko.mykola.popularmovies.http.ReviewApi;
 import miroshnychenko.mykola.popularmovies.data.MovieContract;
 import miroshnychenko.mykola.popularmovies.models.Review;
 import miroshnychenko.mykola.popularmovies.models.ReviewsResponse;

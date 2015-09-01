@@ -5,4 +5,17 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="p1">
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+
+    </style>
+    <style name="p2">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+
+    </style>
+    <style name="p3">
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+
+    </style>
+
 </resources>

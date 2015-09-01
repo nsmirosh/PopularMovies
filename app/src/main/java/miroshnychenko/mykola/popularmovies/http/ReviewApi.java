@@ -1,4 +1,4 @@
-package miroshnychenko.mykola.popularmovies;
+package miroshnychenko.mykola.popularmovies.http;
 
 import java.util.List;
 
