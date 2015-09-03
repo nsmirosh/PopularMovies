@@ -183,7 +183,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch(id) {
             case DETAIL_LOADER:
-                if (null != mMovieUri) {
                     return new CursorLoader(
                             getActivity(),
                             mMovieUri,
@@ -191,10 +190,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                             null,
                             null,
                             null);
-                }
-                break;
             case REVIEW_LOADER:
-                if (null != mMovieUri) {
                 return new CursorLoader(
                         getActivity(),
                         MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
@@ -203,10 +199,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                         null,
                         null,
                         null);
-                }
-
             case TRAILER_LOADER:
-                if (null != mMovieUri) {
                 return new CursorLoader(
                         getActivity(),
                         MovieContract.TrailerEntry.buildTrailersWithMovieIdUri(
@@ -215,9 +208,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                         null,
                         null,
                         null);
-                }
         }
-
         return null;
     }
 

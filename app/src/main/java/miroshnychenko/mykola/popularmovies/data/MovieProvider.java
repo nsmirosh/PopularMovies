@@ -23,8 +23,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 public class MovieProvider extends ContentProvider {
+
+
+    public static final String TAG = MovieProvider.class.getSimpleName();
 
     // The URI Matcher used by this content provider.
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -184,6 +188,7 @@ public class MovieProvider extends ContentProvider {
         // Here's the switch statement that, given a URI, will determine what kind of request it is,
         // and query the database accordingly.
         Cursor retCursor;
+        Log.d(TAG, "query Uri = " + uri.toString());
         switch (sUriMatcher.match(uri)) {
             case MOVIES: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
@@ -218,9 +223,7 @@ public class MovieProvider extends ContentProvider {
         return retCursor;
     }
 
-    /*
-        Student: Add the ability to insert Locations to the implementation of this function.
-     */
+
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
