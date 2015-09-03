@@ -33,6 +33,7 @@ import miroshnychenko.mykola.popularmovies.adapters.ReviewAdapter;
 import miroshnychenko.mykola.popularmovies.data.MovieContract;
 import miroshnychenko.mykola.popularmovies.models.Movie;
 import miroshnychenko.mykola.popularmovies.models.Review;
+import miroshnychenko.mykola.popularmovies.models.Trailer;
 
 /**
  * Created by nsmirosh on 8/24/2015.
@@ -117,6 +118,32 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             ft.addToBackStack(null);
             DialogFragment newFragment = ReviewsDialogFragment.newInstance(reviews);
             newFragment.show(ft, ReviewsDialogFragment.FRAGMENT_TAG);
+        }
+    }
+
+
+    @OnClick(R.id.fragment_detail_view_trailers_btn)
+    public void showTrailers() {
+        if (mTrailerCursor.moveToFirst()) {
+            ArrayList<Trailer> trailers = new ArrayList<>();
+
+            for (int i = 0; i < mTrailerCursor.getCount(); i ++) {
+                String id = mTrailerCursor.getString(1);
+                String key = mTrailerCursor.getString(2);
+                String name = mTrailerCursor.getString(3);
+                Trailer trailer = new Trailer(id, key, name);
+                trailers.add(trailer);
+                mTrailerCursor.moveToNext();
+            }
+
+            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+            Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(TrailersDialogFragment.FRAGMENT_TAG);
+            if (prev != null) {
+                ft.remove(prev);
+            }
+            ft.addToBackStack(null);
+            DialogFragment newFragment = TrailersDialogFragment.newInstance(trailers);
+            newFragment.show(ft, TrailersDialogFragment.FRAGMENT_TAG);
         }
     }
 
