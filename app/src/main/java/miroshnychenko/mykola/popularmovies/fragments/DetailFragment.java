@@ -74,6 +74,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
 //    ReviewAdapter mReviewAdapter;
     Cursor mReviewCursor;
+    Cursor mTrailerCursor;
 
 
     @Override
@@ -191,6 +192,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 break;
             case REVIEW_LOADER:
                 mReviewCursor = data;
+                break;
+
+            case TRAILER_LOADER:
+                mTrailerCursor = data;
                 break;
         }
 
