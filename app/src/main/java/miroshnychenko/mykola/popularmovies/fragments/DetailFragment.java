@@ -45,6 +45,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public static final String FRAGMENT_TAG = "DetailFragmentTag";
     public static final int DETAIL_LOADER = 1;
     public static final int REVIEW_LOADER = 2;
+    public static final int TRAILER_LOADER = 3;
 
     @Bind(R.id.fragment_detail_title_tv)
     TextView mTitleTV;
@@ -153,6 +154,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 return new CursorLoader(
                         getActivity(),
                         MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
+                                MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
+                        null,
+                        null,
+                        null,
+                        null);
+            case TRAILER_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        MovieContract.TrailerEntry.buildTrailersWithMovieIdUri(
                                 MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
                         null,
                         null,
