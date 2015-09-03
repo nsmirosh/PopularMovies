@@ -1,17 +1,54 @@
 package miroshnychenko.mykola.popularmovies.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+
 /**
  * Created by nsmirosh on 9/1/2015.
  */
-public class Trailer {
+
+public class Trailer implements Parcelable {
 
     private String id;
-    private String iso_639_1;
     private String key;
     private String name;
-    private String site;
-    private Integer size;
-    private String type;
+
+    public Trailer(String id, String key, String name) {
+        this.id = id;
+        this.key = key;
+        this.name = name;
+    }
+
+    public Trailer(Parcel parcel) {
+        id = parcel.readString();
+        key = parcel.readString();
+        name = parcel.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int i) {
+        dest.writeString(id);
+        dest.writeString(key);
+        dest.writeString(name);
+    }
+
+    public static final Parcelable.Creator<Trailer> CREATOR = new Parcelable.Creator<Trailer>() {
+        @Override
+        public Trailer createFromParcel(android.os.Parcel in) {
+            return new Trailer(in);
+        }
+
+        @Override
+        public Trailer[] newArray(int size) {
+            return new Trailer[size];
+        }
+    };
 
     public String getName() {
         return name;
@@ -21,29 +58,6 @@ public class Trailer {
         this.name = name;
     }
 
-    public String getIso_639_1() {
-        return iso_639_1;
-    }
-
-    public void setIso_639_1(String iso_639_1) {
-        this.iso_639_1 = iso_639_1;
-    }
-
-    public Integer getSize() {
-        return size;
-    }
-
-    public void setSize(Integer size) {
-        this.size = size;
-    }
-
-    public String getSite() {
-        return site;
-    }
-
-    public void setSite(String site) {
-        this.site = site;
-    }
 
     public String getKey() {
         return key;
@@ -61,13 +75,7 @@ public class Trailer {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
-    }
 
-    public void setType(String type) {
-        this.type = type;
-    }
 
 
 }

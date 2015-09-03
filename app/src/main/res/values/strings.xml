@@ -3,9 +3,10 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="menu_movies_fragment_sort_popularity">Sort by most popular</string>
+    <string name="menu_movies_fragment_sort_popularity">Most popular</string>
 
-    <string name="menu_movies_fragment_sort_rating">Sort by highest rated</string>
+    <string name="menu_movies_fragment_sort_rating">Highest rated</string>
+    <string name="menu_movies_fragment_sort_favorite">Favorite</string>
 
 
     <string name="fragment_movies_sort_popularity_desc_parameter">popularity.desc</string>
@@ -14,8 +15,15 @@
 
 
     <string name="fragment_dialog_reviews_title">Reviews</string>
+    <string name="fragment_dialog_trailers_title">Trailers</string>
+    <string name="fragment_detail_mark_as_favorite">Mark as favorite</string>
 
-    <string name="activity_details_show_reviews">SHOW REVIEWS</string>
+    <string name="activity_details_view_reviews">VIEW REVIEWS</string>
+    <string name="activity_details_view_trailers">VIEW TRAILERS</string>
+
+
+    <string name="fragment_dialog_trailers_youtube_app_dir">vnd.youtube:</string>
+    <string name="fragment_dialog_trailers_youtube_website_dir">http://www.youtube.com/watch?v=</string>
 
 
 <!-- TODO: Remove or change this placeholder text -->

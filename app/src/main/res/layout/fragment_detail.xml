@@ -18,7 +18,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/white" />
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -26,15 +26,16 @@
 
             <ImageView
                 android:id="@+id/fragment_detail_poster_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="200dp"
                 android:layout_margin="10dp" />
 
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/fragment_detail_poster_iv"
                 android:orientation="vertical">
 
                 <TextView
@@ -48,8 +49,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <Button
+                    android:id="@+id/fragment_detail_favorite_btn"
+                    android:text="@string/fragment_detail_mark_as_favorite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
             </LinearLayout>
-        </RelativeLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/fragment_detail_overview_tv"
@@ -58,8 +66,14 @@
             android:padding="15dp" />
 
         <Button
-            android:id="@+id/fragment_detail_show_reviews_btn"
-            android:text="@string/activity_details_show_reviews"
+            android:id="@+id/fragment_detail_view_reviews_btn"
+            android:text="@string/activity_details_view_reviews"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/fragment_detail_view_trailers_btn"
+            android:text="@string/activity_details_view_trailers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

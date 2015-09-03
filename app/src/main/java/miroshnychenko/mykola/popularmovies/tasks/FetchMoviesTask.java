@@ -42,7 +42,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
     public static final String API_KEY = "d5d716f0c3ba595706ba90ae3138a16a";
-    public static final String moviePosterBasePath = "https://image.tmdb.org/t/p/w500";
+    public static final String moviePosterBasePath = "https://image.tmdb.org/t/p/w185";
     @Override
     protected List<Movie> doInBackground(String... params) {
 

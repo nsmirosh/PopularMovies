@@ -155,6 +155,12 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             onSortCriteriaChanged();
             return true;
         }
+
+        if (id == R.id.menu_movies_fragment_sort_favorite) {
+//            mPreferenceUtils.saveSortCriteria(getString(R.string.fragment_movies_sort_rating_desc_parameter));
+//            onSortCriteriaChanged();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 

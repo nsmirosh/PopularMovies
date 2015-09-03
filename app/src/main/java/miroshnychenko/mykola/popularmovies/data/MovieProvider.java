@@ -139,7 +139,7 @@ public class MovieProvider extends ContentProvider {
 
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIES);
-        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#", MOVIE_ID);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/*", MOVIE_ID);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/" + MovieContract.PATH_REVIEW, REVIEWS);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/" + MovieContract.PATH_TRAILER, TRAILERS);
         return matcher;
@@ -172,7 +172,7 @@ public class MovieProvider extends ContentProvider {
             case REVIEWS:
                 return MovieContract.ReviewEntry.CONTENT_TYPE;
             case TRAILERS:
-                return MovieContract.ReviewEntry.CONTENT_TYPE;
+                return MovieContract.TrailerEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -195,8 +195,9 @@ public class MovieProvider extends ContentProvider {
                         null,
                         sortOrder
                 );
-                break;
+
             }
+            break;
             case MOVIE_ID: {
                 retCursor = getMovieById(uri, projection, sortOrder);
 
@@ -280,6 +281,16 @@ public class MovieProvider extends ContentProvider {
             case MOVIES:
                 rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection,
                         selectionArgs);
+                break;
+
+            case MOVIE_ID:
+                long movieId = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+                String[] args = new String[]{Long.toString(movieId)};
+                rowsUpdated = db.update(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        values,
+                        sMovieIdSelection,
+                        args);
                 break;
             case REVIEWS:
                 rowsUpdated = db.update(MovieContract.ReviewEntry.TABLE_NAME, values, selection,
