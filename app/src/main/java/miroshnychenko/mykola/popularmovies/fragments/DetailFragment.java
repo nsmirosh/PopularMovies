@@ -91,6 +91,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
 
         getLoaderManager().initLoader(REVIEW_LOADER, null, this);
+        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
 
 //        mReviewLV.setAdapter(mReviewAdapter);
         return rootView;
@@ -220,7 +221,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             case REVIEW_LOADER:
                 mReviewCursor = data;
                 break;
-
             case TRAILER_LOADER:
                 mTrailerCursor = data;
                 break;

@@ -59,7 +59,7 @@
 
         <Button
             android:id="@+id/fragment_detail_show_reviews_btn"
-            android:text="@string/activity_details_show_reviews"
+            android:text="@string/activity_details_view_reviews"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
