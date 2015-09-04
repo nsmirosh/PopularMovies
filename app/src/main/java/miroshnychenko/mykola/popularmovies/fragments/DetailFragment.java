@@ -10,13 +10,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -28,12 +26,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import miroshnychenko.mykola.popularmovies.R;
-import miroshnychenko.mykola.popularmovies.adapters.MovieAdapter;
-import miroshnychenko.mykola.popularmovies.adapters.ReviewAdapter;
 import miroshnychenko.mykola.popularmovies.data.MovieContract;
-import miroshnychenko.mykola.popularmovies.models.Movie;
 import miroshnychenko.mykola.popularmovies.models.Review;
 import miroshnychenko.mykola.popularmovies.models.Trailer;
+import miroshnychenko.mykola.popularmovies.utils.PreferenceUtils;
 
 /**
  * Created by nsmirosh on 8/24/2015.
@@ -58,6 +54,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     TextView mRatingTV;
     @Bind(R.id.fragment_detail_overview_tv)
     TextView mOverviewTV;
+    @Bind(R.id.fragment_detail_favorite_iv)
+    ImageView mFavoriteIV;
 
 //    @Bind(R.id.fragment_detail_review_lv)
 //    ListView mReviewLV;
@@ -73,9 +71,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     Uri mMovieUri;
 
-    //    ReviewAdapter mReviewAdapter;
     Cursor mReviewCursor;
     Cursor mTrailerCursor;
+    Cursor mMovieCursor;
+
+    boolean isFavorite;
+
+    PreferenceUtils mPreferenceUtils;
 
 
     @Override
@@ -84,6 +86,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
+
+        mPreferenceUtils = new PreferenceUtils(getActivity());
         Bundle arguments = getArguments();
 
         if (arguments != null) {
@@ -97,7 +101,25 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return rootView;
     }
 
-    @OnClick(R.id.fragment_detail_show_reviews_btn)
+
+    @OnClick(R.id.fragment_detail_favorite_iv)
+    public void markAsFavorite() {
+
+        isFavorite = !isFavorite;
+
+        String movieId = String.valueOf(mMovieCursor.getLong(COL_MOVIE_ID));
+
+        if (isFavorite) {
+            mPreferenceUtils.saveFavoriteMovie(movieId);
+            mFavoriteIV.setImageResource(R.drawable.favorite);
+        }
+        else {
+            mPreferenceUtils.deleteFavoriteMovie(movieId);
+            mFavoriteIV.setImageResource(R.drawable.not_favorite);
+        }
+    }
+
+    @OnClick(R.id.fragment_detail_view_reviews_btn)
     public void showReviews() {
         if (mReviewCursor.moveToFirst()) {
             List<Review> reviews = new ArrayList<>();
@@ -204,6 +226,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
             case DETAIL_LOADER:
+                mMovieCursor = data;
                 if (data != null && data.moveToFirst()) {
                     mTitleTV.setText(data.getString(COL_TITLE));
 
@@ -214,6 +237,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     mReleaseDateTV.setText(data.getString(COL_RELEASE_DATE));
                     mRatingTV.setText(getActivity().getString(R.string.format_user_rating, data.getString(COL_USER_RATING)));
                     mOverviewTV.setText(data.getString(COL_OVERVIEW));
+                    isFavorite = mPreferenceUtils.isFavorite(data.getString(COL_MOVIE_ID));
+
+                    if (isFavorite) {
+                        mFavoriteIV.setImageResource(R.drawable.favorite);
+                    }
+                    else {
+                        mFavoriteIV.setImageResource(R.drawable.not_favorite);
+                    }
+
                 }
                 break;
             case REVIEW_LOADER:
