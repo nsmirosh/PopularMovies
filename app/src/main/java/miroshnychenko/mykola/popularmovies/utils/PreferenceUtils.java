@@ -57,6 +57,10 @@ public class PreferenceUtils {
         return mPrefs.getStringSet(FAVORITES_KEY, new HashSet<String>()).contains(moviedId);
     }
 
+    public Set<String> getFavoriteMovies() {
+        return mPrefs.getStringSet(FAVORITES_KEY, new HashSet<String>());
+    }
+
 
 
 

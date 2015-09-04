@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import java.util.Set;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -50,6 +53,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     int mPosition;
 
     MovieAdapter mMovieAdapter;
+
+    private static final String sMovieIdSelection =
+            MovieContract.MovieEntry.TABLE_NAME +
+                    "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID + " IN ";
 
 
     static final int COL_ID = 0;
@@ -144,16 +151,20 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.menu_movies_fragment_sort_popularity_desc) {
-            mPreferenceUtils.saveSortCriteria(getString(R.string.fragment_movies_sort_popularity_desc_parameter));
-            onSortCriteriaChanged();
-            return true;
-        }
 
-        if (id == R.id.menu_movies_fragment_sort_rating_desc) {
-            mPreferenceUtils.saveSortCriteria(getString(R.string.fragment_movies_sort_rating_desc_parameter));
-            onSortCriteriaChanged();
-            return true;
+        switch(id) {
+            case R.id.menu_movies_fragment_sort_popularity_desc:
+                mPreferenceUtils.saveSortCriteria(getString(R.string.fragment_movies_sort_popularity_desc_parameter));
+                onSortCriteriaChanged();
+                return true;
+            case R.id.menu_movies_fragment_sort_rating_desc:
+                mPreferenceUtils.saveSortCriteria(getString(R.string.fragment_movies_sort_popularity_desc_parameter));
+                onSortCriteriaChanged();
+                return true;
+            case R.id.menu_movies_fragment_sort_favorite:
+                return true;
+
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -162,10 +173,13 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Set<String> movieIds = mPreferenceUtils.getFavoriteMovies();
+        String selection = sMovieIdSelection + "(" + TextUtils.join(", ", movieIds) + ")";
+
         return new CursorLoader(getActivity(),
                 MovieContract.MovieEntry.CONTENT_URI,
                 null,
-                null,
+                selection,
                 null,
                 null);
     }
