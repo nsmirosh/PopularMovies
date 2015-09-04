@@ -73,7 +73,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     Uri mMovieUri;
 
-//    ReviewAdapter mReviewAdapter;
+    //    ReviewAdapter mReviewAdapter;
     Cursor mReviewCursor;
     Cursor mTrailerCursor;
 
@@ -102,7 +102,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (mReviewCursor.moveToFirst()) {
             List<Review> reviews = new ArrayList<>();
 
-            for (int i = 0; i < mReviewCursor.getCount(); i ++) {
+            for (int i = 0; i < mReviewCursor.getCount(); i++) {
                 String id = mReviewCursor.getString(1);
                 String author = mReviewCursor.getString(2);
                 String content = mReviewCursor.getString(3);
@@ -128,7 +128,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (mTrailerCursor.moveToFirst()) {
             ArrayList<Trailer> trailers = new ArrayList<>();
 
-            for (int i = 0; i < mTrailerCursor.getCount(); i ++) {
+            for (int i = 0; i < mTrailerCursor.getCount(); i++) {
                 String id = mTrailerCursor.getString(1);
                 String key = mTrailerCursor.getString(2);
                 String name = mTrailerCursor.getString(3);
@@ -167,9 +167,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch(id) {
-            case DETAIL_LOADER:
-                if (null != mMovieUri) {
+        if (null != mMovieUri) {
+            switch (id) {
+                case DETAIL_LOADER:
                     return new CursorLoader(
                             getActivity(),
                             mMovieUri,
@@ -177,34 +177,32 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                             null,
                             null,
                             null);
-                }
-                break;
-            case REVIEW_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
-                                MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
-                        null,
-                        null,
-                        null,
-                        null);
-            case TRAILER_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MovieContract.TrailerEntry.buildTrailersWithMovieIdUri(
-                                MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
-                        null,
-                        null,
-                        null,
-                        null);
+                case REVIEW_LOADER:
+                    return new CursorLoader(
+                            getActivity(),
+                            MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
+                                    MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
+                            null,
+                            null,
+                            null,
+                            null);
+                case TRAILER_LOADER:
+                    return new CursorLoader(
+                            getActivity(),
+                            MovieContract.TrailerEntry.buildTrailersWithMovieIdUri(
+                                    MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
+                            null,
+                            null,
+                            null,
+                            null);
+            }
         }
-
         return null;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        switch(loader.getId()) {
+        switch (loader.getId()) {
             case DETAIL_LOADER:
                 if (data != null && data.moveToFirst()) {
                     mTitleTV.setText(data.getString(COL_TITLE));
