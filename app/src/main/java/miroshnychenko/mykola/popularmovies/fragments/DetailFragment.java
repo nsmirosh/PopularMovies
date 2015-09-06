@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -57,10 +58,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Bind(R.id.fragment_detail_favorite_iv)
     ImageView mFavoriteIV;
 
-//    @Bind(R.id.fragment_detail_review_lv)
-//    ListView mReviewLV;
-
-
     static final int COL_ID = 0;
     static final int COL_MOVIE_ID = 1;
     static final int COL_TITLE = 2;
@@ -97,7 +94,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         getLoaderManager().initLoader(REVIEW_LOADER, null, this);
         getLoaderManager().initLoader(TRAILER_LOADER, null, this);
 
-//        mReviewLV.setAdapter(mReviewAdapter);
         return rootView;
     }
 
@@ -142,6 +138,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             DialogFragment newFragment = ReviewsDialogFragment.newInstance(reviews);
             newFragment.show(ft, ReviewsDialogFragment.FRAGMENT_TAG);
         }
+        else {
+            Toast.makeText(getActivity(), getString(R.string.activity_details_no_reviews), Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -167,6 +166,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             ft.addToBackStack(null);
             DialogFragment newFragment = TrailersDialogFragment.newInstance(trailers);
             newFragment.show(ft, TrailersDialogFragment.FRAGMENT_TAG);
+        }
+        else {
+            Toast.makeText(getActivity(), getString(R.string.activity_details_no_trailers), Toast.LENGTH_SHORT).show();
         }
     }
 

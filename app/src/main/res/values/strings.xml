@@ -11,15 +11,19 @@
 
     <string name="fragment_movies_sort_popularity_desc_parameter">popularity.desc</string>
     <string name="fragment_movies_sort_rating_desc_parameter">vote_average.desc</string>
+    <string name="fragment_movies_sort_favorite">favorite</string>
     <string name="fragment_movies_no_network">You are not connected to the internet. Tap to try again</string>
+    <string name="fragment_movies_no_favorite">You do not have any favorite movies yet</string>
 
 
     <string name="fragment_dialog_reviews_title">Reviews</string>
     <string name="fragment_dialog_trailers_title">Trailers</string>
     <string name="fragment_detail_mark_as_favorite">Mark as favorite</string>
 
-    <string name="activity_details_view_reviews">VIEW REVIEWS</string>
+    <string name="activity_details_read_reviews">READ REVIEWS</string>
     <string name="activity_details_view_trailers">VIEW TRAILERS</string>
+    <string name="activity_details_no_reviews">Sorry, no reviews yet</string>
+    <string name="activity_details_no_trailers">Sorry, no trailers</string>
 
 
     <string name="fragment_dialog_trailers_youtube_app_dir">vnd.youtube:</string>
