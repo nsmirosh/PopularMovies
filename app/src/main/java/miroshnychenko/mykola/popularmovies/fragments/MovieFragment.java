@@ -37,10 +37,7 @@ import miroshnychenko.mykola.popularmovies.tasks.FetchTrailersTask;
 import miroshnychenko.mykola.popularmovies.utils.PreferenceUtils;
 
 
-public class MovieFragment extends Fragment
-        implements
-//        LoaderManager.LoaderCallbacks<Cursor>
-        FetchMoviesTask.onMoviesDownLoadedListener {
+public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesDownLoadedListener {
 
     public static final String TAG = MovieFragment.class.getSimpleName();
     public static final int MOVIE_LOADER = 0;
@@ -131,12 +128,6 @@ public class MovieFragment extends Fragment
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-//        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         onSortCriteriaChanged();
@@ -156,7 +147,6 @@ public class MovieFragment extends Fragment
             FetchMoviesTask moviesTask = new FetchMoviesTask(getActivity(), this);
             String sortCriteria = mPreferenceUtils.getSortCriteria();
             moviesTask.execute(sortCriteria);
-//            mProgressView.startAnimation();
             mProgressView.setVisibility(View.VISIBLE);
 
         }
@@ -207,6 +197,7 @@ public class MovieFragment extends Fragment
         else {
             mMoviesGV.setVisibility(View.GONE);
             mNoFavoriteTV.setVisibility(View.VISIBLE);
+            mNoNetworkTV.setVisibility(View.GONE);
         }
     }
 
@@ -241,35 +232,6 @@ public class MovieFragment extends Fragment
     }
 
 
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-////        Set<String> movieIds = mPreferenceUtils.getFavoriteMovies();
-////        String selection = sMovieIdFavoriteSelection + "(" + TextUtils.join(", ", movieIds) + ")";
-//
-////        return new CursorLoader(getActivity(),
-////                MovieContract.MovieEntry.CONTENT_URI,
-////                null,
-////                selection,
-////                null,
-////                null);
-//    }
-
-//    @Override
-//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-//
-////        mMovieAdapter.swapCursor(data);
-//        if (mPosition != GridView.INVALID_POSITION) {
-//            // If we don't need to restart the loader, and there's a desired position to restore
-//            // to, do so now.
-//            mMoviesGV.smoothScrollToPosition(mPosition);
-//        }
-//
-//    }
-//
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> loader) {
-////        mMovieAdapter.swapCursor(null);
-//    }
 
 
     @Override
@@ -281,21 +243,6 @@ public class MovieFragment extends Fragment
         mMoviesGV.setVisibility(View.VISIBLE);
 
     }
-
-
-    //    public void fetchMoviesTask() {
-////        if (isNetworkAvailable()) {
-//        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity());
-//        fetchMoviesTask.execute(mSortCriteria);
-////            mMoviesRV.setVisibility(View.GONE);
-////            mProgressBar.setVisibility(View.VISIBLE);
-//
-////            setHasOptionsMenu(true);
-////        } else {
-////            mNoNetworkTV.setVisibility(View.VISIBLE);
-////            mMoviesRV.setVisibility(View.GONE);
-////        }
-//    }
 
 
     private boolean isNetworkAvailable() {
@@ -311,18 +258,6 @@ public class MovieFragment extends Fragment
         if (isNetworkAvailable()) {
             mNoNetworkTV.setVisibility(View.GONE);
             updateMovies();
-//            setHasOptionsMenu(true);
         }
     }
-
-
-//    @Override
-//    public void onMoviesDownloaded(List<Movie> movies) {
-//        MainActivity mActivity = (MainActivity) getActivity();
-//        mMovieAdapter = new MovieAdapter(getActivity(), mActivity);
-//        mMoviesRV.setAdapter(mMovieAdapter);
-//        mProgressBar.setVisibility(View.GONE);
-//        mMoviesRV.setVisibility(View.VISIBLE);
-//    }
-
 }

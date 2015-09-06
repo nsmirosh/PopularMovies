@@ -234,10 +234,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
                     Picasso.with(getActivity())
                             .load(data.getString(COL_POSTER_PATH))
+
                             .into(mPosterIV);
 
-                    mReleaseDateTV.setText(data.getString(COL_RELEASE_DATE));
-                    mRatingTV.setText(getActivity().getString(R.string.format_user_rating, data.getString(COL_USER_RATING)));
+                    mReleaseDateTV.setText(getActivity().getString(R.string.fragment_detail_release_date, data.getString(COL_RELEASE_DATE)));
+                    mRatingTV.setText(getActivity().getString(R.string.fragment_detail_user_rating, data.getString(COL_USER_RATING)));
                     mOverviewTV.setText(data.getString(COL_OVERVIEW));
                     isFavorite = mPreferenceUtils.isFavorite(data.getString(COL_MOVIE_ID));
 
