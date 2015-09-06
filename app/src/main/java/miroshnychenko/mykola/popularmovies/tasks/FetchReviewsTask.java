@@ -25,11 +25,22 @@ public class FetchReviewsTask extends AsyncTask<Long, Void, List<Review>> {
 
     Context mContext;
 
+
+
+
+
+    @Override
+    protected void onPostExecute(List<Review> reviews) {
+        super.onPostExecute(reviews);
+    }
+
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
     public static final String API_KEY = "d5d716f0c3ba595706ba90ae3138a16a";
 
     public FetchReviewsTask(Context context) {
         mContext = context;
+
+
     }
 
     @Override
@@ -66,13 +77,15 @@ public class FetchReviewsTask extends AsyncTask<Long, Void, List<Review>> {
         if ( vReviewValues.size() > 0 ) {
             ContentValues[] cvArray = new ContentValues[vReviewValues.size()];
             vReviewValues.toArray(cvArray);
-//            int inserted = mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, cvArray);
-//            Log.d(TAG, inserted + " reviews inserted");
-
             int inserted = mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(movieId), cvArray);
             Log.d(TAG, inserted + " reviews inserted");
         }
 
         return reviews;
     }
+
+
+
+
+
 }

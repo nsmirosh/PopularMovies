@@ -5,11 +5,10 @@
 
     <GridView
         android:id="@+id/fragment_movies_main_gv"
-        android:numColumns="2"
+        android:numColumns="3"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
 
     <TextView
         android:id="@+id/fragment_movies_no_favorite_tv"

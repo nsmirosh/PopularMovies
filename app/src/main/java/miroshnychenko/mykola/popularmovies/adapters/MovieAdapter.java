@@ -6,7 +6,9 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -18,9 +20,9 @@ import miroshnychenko.mykola.popularmovies.models.Movie;
 /**
  * Created by nsmirosh on 7/15/2015.
  */
-public class MovieAdapter extends CursorAdapter {
+public class MovieAdapter extends ArrayAdapter<Movie> {
 
-
+    Context mContext;
 
     static final int COL_ID = 0;
     static final int COL_MOVIE_ID = 1;
@@ -31,40 +33,41 @@ public class MovieAdapter extends CursorAdapter {
     static final int COL_RELEASE_DATE = 6;
 
 
+    public MovieAdapter(Context context) {
+        super(context, R.layout.adapter_movies_row);
+        mContext = context;
+    }
+
     public static class ViewHolder {
-        public final ImageView mMovieIV;
+        public ImageView mMovieIV;
 
-        public ViewHolder(View view) {
-            mMovieIV = (ImageView) view.findViewById(R.id.adapter_movies_iv);
+    }
+
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+
+        final ViewHolder holder;
+        Movie movie = getItem(position);
+
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) mContext
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            holder = new ViewHolder();
+            convertView  = inflater.inflate(R.layout.adapter_movies_row, parent, false);
+            holder.mMovieIV = (ImageView) convertView.findViewById(R.id.adapter_movies_iv);
+            convertView.setTag(holder);
         }
-    }
+        else {
+            holder = (ViewHolder) convertView.getTag();
+        }
 
-    public MovieAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
-    }
-
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-
-        View view = LayoutInflater.from(context).inflate(R.layout.adapter_movies_row, parent, false);
-
-        ViewHolder viewHolder = new ViewHolder(view);
-        view.setTag(viewHolder);
-
-        return view;
-    }
-
-    @Override
-    public void bindView(View view, Context context, final Cursor cursor) {
-
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
-
-
-        if (cursor.getString(COL_POSTER_PATH) != null) {
+        if (movie.getMoviePosterPath() != null) {
             Picasso.with(mContext)
-                    .load(cursor.getString(COL_POSTER_PATH))
-                    .into(viewHolder.mMovieIV);
+                    .load(movie.getMoviePosterPath())
+                    .into(holder.mMovieIV);
         }
 
+        return convertView;
     }
 }

@@ -35,14 +35,21 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
     private final Context mContext;
 
-    public FetchMoviesTask(Context context) {
+    onMoviesDownLoadedListener mListener;
+
+    public interface onMoviesDownLoadedListener {
+        void onMoviesDownloaded(List<Movie> movies);
+    }
+
+    public FetchMoviesTask(Context context, onMoviesDownLoadedListener listener) {
         mContext = context;
+        mListener = listener;
     }
 
 
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
     public static final String API_KEY = "d5d716f0c3ba595706ba90ae3138a16a";
-    public static final String moviePosterBasePath = "https://image.tmdb.org/t/p/w185";
+    public static final String moviePosterBasePath = "https://image.tmdb.org/t/p/w342";
     @Override
     protected List<Movie> doInBackground(String... params) {
 
@@ -152,6 +159,10 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
             contentValues.put(MovieContract.MovieEntry.COLUMN_USER_RATING, userRating);
             contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
             vMovieValues.add(contentValues);
+
+
+            Movie movie = new Movie(id, originalTitle, moviePosterPath, overview, userRating, releaseDate);
+            moviesArrayList.add(movie);
         }
 
         int inserted = 0;
@@ -165,6 +176,12 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         Log.d(TAG, "FetchMoviesTask Complete. " + inserted + " Inserted");
         return moviesArrayList;
 
+    }
+
+    @Override
+    protected void onPostExecute(List<Movie> movies) {
+        super.onPostExecute(movies);
+        mListener.onMoviesDownloaded(movies);
     }
 
 }

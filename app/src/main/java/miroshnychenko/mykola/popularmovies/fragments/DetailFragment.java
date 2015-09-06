@@ -1,6 +1,5 @@
 package miroshnychenko.mykola.popularmovies.fragments;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -55,6 +55,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     TextView mRatingTV;
     @Bind(R.id.fragment_detail_overview_tv)
     TextView mOverviewTV;
+    @Bind(R.id.fragment_detail_favorite_iv)
+    ImageView mFavoriteIV;
 
     static final int COL_ID = 0;
     static final int COL_MOVIE_ID = 1;
@@ -63,14 +65,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     static final int COL_OVERVIEW = 4;
     static final int COL_USER_RATING = 5;
     static final int COL_RELEASE_DATE = 6;
-    static final int COL_FAVORITE = 7;
 
     Uri mMovieUri;
-    Cursor mMovieCursor;
+
     Cursor mReviewCursor;
     Cursor mTrailerCursor;
+    Cursor mMovieCursor;
 
     boolean isFavorite;
+
+    PreferenceUtils mPreferenceUtils;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,38 +83,36 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
+
+        mPreferenceUtils = new PreferenceUtils(getActivity());
         Bundle arguments = getArguments();
 
         if (arguments != null) {
             mMovieUri = arguments.getParcelable(ARGS_MOVIE_URI);
         }
+
         getLoaderManager().initLoader(REVIEW_LOADER, null, this);
         getLoaderManager().initLoader(TRAILER_LOADER, null, this);
+
         return rootView;
     }
 
 
-    @OnClick(R.id.fragment_detail_favorite_btn)
+    @OnClick(R.id.fragment_detail_favorite_iv)
     public void markAsFavorite() {
 
-        PreferenceUtils preferenceUtils = new PreferenceUtils(getActivity());
         isFavorite = !isFavorite;
 
         String movieId = String.valueOf(mMovieCursor.getLong(COL_MOVIE_ID));
 
         if (isFavorite) {
-            preferenceUtils.saveFavoriteMovie(movieId);
+            mPreferenceUtils.saveFavoriteMovie(movieId);
+            mFavoriteIV.setImageResource(R.drawable.favorite);
         }
         else {
-            preferenceUtils.deleteFavoriteMovie(movieId);
+            mPreferenceUtils.deleteFavoriteMovie(movieId);
+            mFavoriteIV.setImageResource(R.drawable.not_favorite);
         }
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put(MovieContract.MovieEntry.COLUMN_FAVORITE, isFavorite ? 1 : 0);
-//        int updated = getActivity().getContentResolver().update(
-//                MovieContract.MovieEntry.buildMovieIdUri(mMovieCursor.getLong(COL_MOVIE_ID)),
-//                contentValues,
-//                null,
-//                null);
     }
 
     @OnClick(R.id.fragment_detail_view_reviews_btn)
@@ -117,7 +120,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (mReviewCursor.moveToFirst()) {
             List<Review> reviews = new ArrayList<>();
 
-            for (int i = 0; i < mReviewCursor.getCount(); i ++) {
+            for (int i = 0; i < mReviewCursor.getCount(); i++) {
                 String id = mReviewCursor.getString(1);
                 String author = mReviewCursor.getString(2);
                 String content = mReviewCursor.getString(3);
@@ -135,14 +138,18 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             DialogFragment newFragment = ReviewsDialogFragment.newInstance(reviews);
             newFragment.show(ft, ReviewsDialogFragment.FRAGMENT_TAG);
         }
+        else {
+            Toast.makeText(getActivity(), getString(R.string.activity_details_no_reviews), Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     @OnClick(R.id.fragment_detail_view_trailers_btn)
     public void showTrailers() {
         if (mTrailerCursor.moveToFirst()) {
             ArrayList<Trailer> trailers = new ArrayList<>();
 
-            for (int i = 0; i < mTrailerCursor.getCount(); i ++) {
+            for (int i = 0; i < mTrailerCursor.getCount(); i++) {
                 String id = mTrailerCursor.getString(1);
                 String key = mTrailerCursor.getString(2);
                 String name = mTrailerCursor.getString(3);
@@ -159,6 +166,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             ft.addToBackStack(null);
             DialogFragment newFragment = TrailersDialogFragment.newInstance(trailers);
             newFragment.show(ft, TrailersDialogFragment.FRAGMENT_TAG);
+        }
+        else {
+            Toast.makeText(getActivity(), getString(R.string.activity_details_no_trailers), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -181,8 +191,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch(id) {
-            case DETAIL_LOADER:
+        if (null != mMovieUri) {
+            switch (id) {
+                case DETAIL_LOADER:
                     return new CursorLoader(
                             getActivity(),
                             mMovieUri,
@@ -190,51 +201,59 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                             null,
                             null,
                             null);
-            case REVIEW_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
-                                MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
-                        null,
-                        null,
-                        null,
-                        null);
-            case TRAILER_LOADER:
-                return new CursorLoader(
-                        getActivity(),
-                        MovieContract.TrailerEntry.buildTrailersWithMovieIdUri(
-                                MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
-                        null,
-                        null,
-                        null,
-                        null);
+                case REVIEW_LOADER:
+                    return new CursorLoader(
+                            getActivity(),
+                            MovieContract.ReviewEntry.buildReviewsWithMovieIdUri(
+                                    MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
+                            null,
+                            null,
+                            null,
+                            null);
+                case TRAILER_LOADER:
+                    return new CursorLoader(
+                            getActivity(),
+                            MovieContract.TrailerEntry.buildTrailersWithMovieIdUri(
+                                    MovieContract.MovieEntry.getMovieIdFromUri(mMovieUri)),
+                            null,
+                            null,
+                            null,
+                            null);
+            }
         }
         return null;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        switch(loader.getId()) {
+        switch (loader.getId()) {
             case DETAIL_LOADER:
-                if (data != null) {
-                    mMovieCursor = data;
+                mMovieCursor = data;
+                if (data != null && data.moveToFirst()) {
                     mTitleTV.setText(data.getString(COL_TITLE));
 
                     Picasso.with(getActivity())
                             .load(data.getString(COL_POSTER_PATH))
-                            .fit()
+
                             .into(mPosterIV);
 
-                    mReleaseDateTV.setText(data.getString(COL_RELEASE_DATE));
-                    mRatingTV.setText(getActivity().getString(R.string.format_user_rating, data.getString(COL_USER_RATING)));
+                    mReleaseDateTV.setText(getActivity().getString(R.string.fragment_detail_release_date, data.getString(COL_RELEASE_DATE)));
+                    mRatingTV.setText(getActivity().getString(R.string.fragment_detail_user_rating, data.getString(COL_USER_RATING)));
                     mOverviewTV.setText(data.getString(COL_OVERVIEW));
-                    isFavorite = data.getInt(COL_FAVORITE) != 0;
+                    isFavorite = mPreferenceUtils.isFavorite(data.getString(COL_MOVIE_ID));
+
+                    if (isFavorite) {
+                        mFavoriteIV.setImageResource(R.drawable.favorite);
+                    }
+                    else {
+                        mFavoriteIV.setImageResource(R.drawable.not_favorite);
+                    }
+
                 }
                 break;
             case REVIEW_LOADER:
                 mReviewCursor = data;
                 break;
-
             case TRAILER_LOADER:
                 mTrailerCursor = data;
                 break;

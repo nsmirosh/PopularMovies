@@ -9,6 +9,6 @@
         app:showAsAction="never" />
 
     <item android:id="@+id/menu_movies_fragment_sort_favorite"
-        android:title="@string/menu_movies_fragment_sort_rating"
+        android:title="@string/menu_movies_fragment_sort_favorite"
         app:showAsAction="never" />
 </menu>
