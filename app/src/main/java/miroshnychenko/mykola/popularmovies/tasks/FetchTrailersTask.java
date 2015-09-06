@@ -25,7 +25,7 @@ public class FetchTrailersTask extends AsyncTask<Long, Void, List<Trailer>> {
     Context mContext;
 
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
-    public static final String API_KEY = "";
+    public static final String API_KEY = "d5d716f0c3ba595706ba90ae3138a16a";
 
     public FetchTrailersTask(Context context) {
         mContext = context;

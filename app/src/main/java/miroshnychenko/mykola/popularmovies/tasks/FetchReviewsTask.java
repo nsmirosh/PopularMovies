@@ -35,7 +35,7 @@ public class FetchReviewsTask extends AsyncTask<Long, Void, List<Review>> {
     }
 
     //TODO REMOVE BEFORE UPLOADING TO GITHUB!
-    public static final String API_KEY = "";
+    public static final String API_KEY = "d5d716f0c3ba595706ba90ae3138a16a";
 
     public FetchReviewsTask(Context context) {
         mContext = context;

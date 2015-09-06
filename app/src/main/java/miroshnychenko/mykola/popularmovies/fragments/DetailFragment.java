@@ -1,5 +1,6 @@
 package miroshnychenko.mykola.popularmovies.fragments;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,7 +11,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,14 +72,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     static final int COL_RELEASE_DATE = 6;
 
     Uri mMovieUri;
-
-    Cursor mReviewCursor;
-    Cursor mTrailerCursor;
     Cursor mMovieCursor;
+
+    List<Review> mReviews;
+    ArrayList<Trailer> mTrailers;
+
+    String mTrailerUrl;
 
     boolean isFavorite;
 
     PreferenceUtils mPreferenceUtils;
+
+    private ShareActionProvider mShareActionProvider;
+
+    public DetailFragment() {
+        setHasOptionsMenu(true);
+    }
 
 
     @Override
@@ -108,8 +121,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (isFavorite) {
             mPreferenceUtils.saveFavoriteMovie(movieId);
             mFavoriteIV.setImageResource(R.drawable.favorite);
-        }
-        else {
+        } else {
             mPreferenceUtils.deleteFavoriteMovie(movieId);
             mFavoriteIV.setImageResource(R.drawable.not_favorite);
         }
@@ -117,17 +129,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @OnClick(R.id.fragment_detail_view_reviews_btn)
     public void showReviews() {
-        if (mReviewCursor.moveToFirst()) {
-            List<Review> reviews = new ArrayList<>();
-
-            for (int i = 0; i < mReviewCursor.getCount(); i++) {
-                String id = mReviewCursor.getString(1);
-                String author = mReviewCursor.getString(2);
-                String content = mReviewCursor.getString(3);
-                Review review = new Review(id, author, content);
-                reviews.add(review);
-                mReviewCursor.moveToNext();
-            }
+        if (mReviews != null) {
 
             FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
             Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(ReviewsDialogFragment.FRAGMENT_TAG);
@@ -135,10 +137,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                 ft.remove(prev);
             }
             ft.addToBackStack(null);
-            DialogFragment newFragment = ReviewsDialogFragment.newInstance(reviews);
+            DialogFragment newFragment = ReviewsDialogFragment.newInstance(mReviews);
             newFragment.show(ft, ReviewsDialogFragment.FRAGMENT_TAG);
-        }
-        else {
+        } else {
             Toast.makeText(getActivity(), getString(R.string.activity_details_no_reviews), Toast.LENGTH_SHORT).show();
         }
     }
@@ -146,28 +147,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @OnClick(R.id.fragment_detail_view_trailers_btn)
     public void showTrailers() {
-        if (mTrailerCursor.moveToFirst()) {
-            ArrayList<Trailer> trailers = new ArrayList<>();
-
-            for (int i = 0; i < mTrailerCursor.getCount(); i++) {
-                String id = mTrailerCursor.getString(1);
-                String key = mTrailerCursor.getString(2);
-                String name = mTrailerCursor.getString(3);
-                Trailer trailer = new Trailer(id, key, name);
-                trailers.add(trailer);
-                mTrailerCursor.moveToNext();
-            }
-
+        if (mTrailers != null) {
             FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
             Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag(TrailersDialogFragment.FRAGMENT_TAG);
             if (prev != null) {
                 ft.remove(prev);
             }
             ft.addToBackStack(null);
-            DialogFragment newFragment = TrailersDialogFragment.newInstance(trailers);
+            DialogFragment newFragment = TrailersDialogFragment.newInstance(mTrailers);
             newFragment.show(ft, TrailersDialogFragment.FRAGMENT_TAG);
-        }
-        else {
+        } else {
             Toast.makeText(getActivity(), getString(R.string.activity_details_no_trailers), Toast.LENGTH_SHORT).show();
         }
     }
@@ -181,12 +170,37 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(getActivity());
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.detailfragment, menu);
+
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        if (mTrailerUrl != null) {
+            mShareActionProvider.setShareIntent(createShareMovieUriIntent());
+        }
+    }
+
+
+    private Intent createShareMovieUriIntent() {
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mTrailerUrl);
+        return shareIntent;
+
     }
 
     @Override
@@ -244,18 +258,43 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
                     if (isFavorite) {
                         mFavoriteIV.setImageResource(R.drawable.favorite);
-                    }
-                    else {
+                    } else {
                         mFavoriteIV.setImageResource(R.drawable.not_favorite);
                     }
 
                 }
                 break;
             case REVIEW_LOADER:
-                mReviewCursor = data;
+                if (data.moveToFirst()) {
+                    mReviews = new ArrayList<>();
+                    do {
+                        String id = data.getString(1);
+                        String author = data.getString(2);
+                        String content = data.getString(3);
+                        Review review = new Review(id, author, content);
+                        mReviews.add(review);
+                    } while (data.moveToNext());
+                }
                 break;
             case TRAILER_LOADER:
-                mTrailerCursor = data;
+
+                if (data.moveToFirst()) {
+                    mTrailers = new ArrayList<>();
+                    do {
+                        String id = data.getString(1);
+                        String key = data.getString(2);
+                        String name = data.getString(3);
+                        Trailer trailer = new Trailer(id, key, name);
+                        mTrailers.add(trailer);
+                    } while (data.moveToNext());
+
+                    mTrailerUrl = getString(R.string.fragment_dialog_trailers_youtube_website_dir) + mTrailers.get(0).getKey();
+
+                    if (mShareActionProvider != null) {
+                        mShareActionProvider.setShareIntent(createShareMovieUriIntent());
+                    }
+
+                }
                 break;
         }
 
