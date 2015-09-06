@@ -24,15 +24,6 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
 
     Context mContext;
 
-    static final int COL_ID = 0;
-    static final int COL_MOVIE_ID = 1;
-    static final int COL_TITLE = 2;
-    static final int COL_POSTER_PATH = 3;
-    static final int COL_OVERVIEW = 4;
-    static final int COL_USER_RATING = 5;
-    static final int COL_RELEASE_DATE = 6;
-
-
     public MovieAdapter(Context context) {
         super(context, R.layout.adapter_movies_row);
         mContext = context;

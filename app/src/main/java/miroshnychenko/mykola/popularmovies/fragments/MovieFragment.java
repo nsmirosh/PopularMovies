@@ -40,7 +40,6 @@ import miroshnychenko.mykola.popularmovies.utils.PreferenceUtils;
 public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesDownLoadedListener {
 
     public static final String TAG = MovieFragment.class.getSimpleName();
-    public static final int MOVIE_LOADER = 0;
     private static final String SELECTED_KEY = "selected_position";
 
     @Bind(R.id.fragment_movies_main_gv)
@@ -76,9 +75,7 @@ public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesD
 
 
     public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         */
+
         public void onItemSelected(Uri movieUri);
     }
 
