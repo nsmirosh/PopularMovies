@@ -228,9 +228,6 @@ public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesD
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
     @Override
     public void onMoviesDownloaded(List<Movie> movies) {
         mMovieAdapter.clear();
@@ -241,13 +238,11 @@ public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesD
 
     }
 
-
     private boolean isNetworkAvailable() {
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
     }
 
     @OnClick(R.id.fragment_movies_no_network_tv)
