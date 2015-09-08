@@ -7,7 +7,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +39,8 @@ import miroshnychenko.mykola.popularmovies.utils.PreferenceUtils;
 public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesDownLoadedListener {
 
     public static final String TAG = MovieFragment.class.getSimpleName();
-    private static final String SELECTED_KEY = "selected_position";
+    private static final String SAVED_INSTANCE_SELECTED_KEY = "selected_position";
+    private static final String SAVED_INSTANCE_MOVIES = "movies";
 
     @Bind(R.id.fragment_movies_main_gv)
     GridView mMoviesGV;
@@ -59,6 +59,7 @@ public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesD
     int mPosition;
 
     MovieAdapter mMovieAdapter;
+    List<Movie> mMovies;
 
     private static final String sMovieIdFavoriteSelection =
             MovieContract.MovieEntry.TABLE_NAME +
@@ -118,16 +119,15 @@ public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesD
             }
         });
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        if (savedInstanceState != null) {
+            mPosition = savedInstanceState.getInt(SAVED_INSTANCE_SELECTED_KEY);
+            mMovies = savedInstanceState.getParcelableArrayList(SAVED_INSTANCE_MOVIES);
+            mMovieAdapter.addAll(mMovies);
+        }
+        else {
+            onSortCriteriaChanged();
         }
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        onSortCriteriaChanged();
     }
 
     public void onSortCriteriaChanged() {
@@ -150,6 +150,13 @@ public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesD
         else {
             mNoNetworkTV.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SAVED_INSTANCE_SELECTED_KEY, mPosition);
+        outState.putParcelableArrayList(SAVED_INSTANCE_MOVIES, (ArrayList<Movie>) mMovies);
     }
 
     private void getFavoriteMovies() {
@@ -230,6 +237,8 @@ public class MovieFragment extends Fragment implements FetchMoviesTask.onMoviesD
 
     @Override
     public void onMoviesDownloaded(List<Movie> movies) {
+
+        mMovies =  movies;
         mMovieAdapter.clear();
         mMovieAdapter.addAll(movies);
         mMovieAdapter.notifyDataSetChanged();

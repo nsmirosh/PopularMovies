@@ -40,9 +40,9 @@ public class FetchTrailersTask extends AsyncTask<Long, Void, List<Trailer>> {
                 .setEndpoint("http://api.themoviedb.org/3")
                 .build();
 
-        TrailerApi reviewApi = restAdapter.create(TrailerApi.class);
+        TrailerApi trailerApi = restAdapter.create(TrailerApi.class);
 
-        TrailersResponse trailersResponse = reviewApi.getTrailers(movieId, API_KEY);
+        TrailersResponse trailersResponse = trailerApi.getTrailers(movieId, API_KEY);
 
         List<Trailer> trailers = new ArrayList<>();
 
